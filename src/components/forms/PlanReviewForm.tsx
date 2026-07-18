@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react';
-import { CheckCircle2 } from 'lucide-react';
+import { CheckCircle2, AlertCircle } from 'lucide-react';
 import type { Inquiry, PreferredContact } from '@/types';
 import { appendToList, storageKeys } from '@/utils/storage';
 
@@ -12,9 +12,10 @@ const contactOptions: { key: PreferredContact; label: string }[] = [
 
 interface PlanReviewFormProps {
   planTitle: string;
+  totalPrice?: number;
 }
 
-export default function PlanReviewForm({ planTitle }: PlanReviewFormProps) {
+export default function PlanReviewForm({ planTitle, totalPrice }: PlanReviewFormProps) {
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
@@ -23,6 +24,8 @@ export default function PlanReviewForm({ planTitle }: PlanReviewFormProps) {
   const [consent, setConsent] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
+  const [submitError, setSubmitError] = useState(false);
+  const [sending, setSending] = useState(false);
 
   function validate(): boolean {
     const next: Record<string, string> = {};
@@ -35,7 +38,7 @@ export default function PlanReviewForm({ planTitle }: PlanReviewFormProps) {
     return Object.keys(next).length === 0;
   }
 
-  function handleSubmit(event: FormEvent) {
+  async function handleSubmit(event: FormEvent) {
     event.preventDefault();
     if (!validate()) return;
 
@@ -49,9 +52,27 @@ export default function PlanReviewForm({ planTitle }: PlanReviewFormProps) {
       createdAt: new Date().toISOString(),
     };
 
-    // TODO: zameniti sa pravim API pozivom kada bekend bude spreman (POST /api/inquiries)
     appendToList<Inquiry>(storageKeys.inquiries, inquiry);
-    setSubmitted(true);
+    setSubmitError(false);
+    setSending(true);
+
+    try {
+      const res = await fetch('/api/inquiry', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ fullName, phone, email, preferredContact, note, planTitle, totalPrice }),
+      });
+      if (res.ok) {
+        setSubmitted(true);
+      } else {
+        setSubmitError(true);
+      }
+    } catch {
+      // Nema dostupnog API-ja (lokalni razvoj bez `vercel dev` ili samostalan preview) — ponašaj se kao demo prijava.
+      setSubmitted(true);
+    } finally {
+      setSending(false);
+    }
   }
 
   if (submitted) {
@@ -159,11 +180,19 @@ export default function PlanReviewForm({ planTitle }: PlanReviewFormProps) {
         {errors.consent && <span id="error-consent" className="-mt-2 block text-xs text-terracotta sm:col-span-2">{errors.consent}</span>}
       </div>
 
+      {submitError && (
+        <p role="alert" className="mt-4 flex items-start gap-2 rounded-lg bg-terracotta/10 px-4 py-3 text-sm text-terracotta">
+          <AlertCircle size={16} className="mt-0.5 flex-none" aria-hidden="true" />
+          Nismo uspeli da pošaljemo zahtev. Proverite konekciju i pokušajte ponovo.
+        </p>
+      )}
+
       <button
         type="submit"
-        className="mt-6 flex min-h-[44px] w-full items-center justify-center rounded-full bg-forest px-6 text-sm font-semibold text-warm-white hover:bg-forest/90 sm:w-auto"
+        disabled={sending}
+        className="mt-6 flex min-h-[44px] w-full items-center justify-center rounded-full bg-forest px-6 text-sm font-semibold text-warm-white hover:bg-forest/90 disabled:opacity-60 sm:w-auto"
       >
-        Pošalji zahtev
+        {sending ? 'Slanje…' : 'Pošalji zahtev'}
       </button>
     </form>
   );

@@ -98,7 +98,7 @@ export default function PlanDetail() {
         </section>
 
         <div ref={formRef} className="mt-12 scroll-mt-20">
-          <PlanReviewForm planTitle={plan.title} />
+          <PlanReviewForm planTitle={plan.title} totalPrice={plan.totalPrice} />
         </div>
       </div>
 

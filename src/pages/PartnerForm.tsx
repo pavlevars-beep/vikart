@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react';
-import { CheckCircle2 } from 'lucide-react';
+import { CheckCircle2, AlertCircle } from 'lucide-react';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import type { PartnerInquiry, PartnerType } from '@/types';
 import { appendToList, storageKeys } from '@/utils/storage';
@@ -44,6 +44,8 @@ export default function PartnerForm() {
   const [form, setForm] = useState(emptyForm);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
+  const [submitError, setSubmitError] = useState(false);
+  const [sending, setSending] = useState(false);
 
   function set<K extends keyof typeof form>(key: K, value: (typeof form)[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -62,13 +64,31 @@ export default function PartnerForm() {
     return Object.keys(next).length === 0;
   }
 
-  function handleSubmit(event: FormEvent) {
+  async function handleSubmit(event: FormEvent) {
     event.preventDefault();
     if (!validate()) return;
     const inquiry: PartnerInquiry = { ...form, createdAt: new Date().toISOString() };
-    // TODO: zameniti sa pravim API pozivom kada bekend bude spreman (POST /api/partner-inquiries)
     appendToList<PartnerInquiry>(storageKeys.partnerInquiries, inquiry);
-    setSubmitted(true);
+    setSubmitError(false);
+    setSending(true);
+
+    try {
+      const res = await fetch('/api/partner-inquiry', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(form),
+      });
+      if (res.ok) {
+        setSubmitted(true);
+      } else {
+        setSubmitError(true);
+      }
+    } catch {
+      // Nema dostupnog API-ja (lokalni razvoj bez `vercel dev` ili samostalan preview) — ponašaj se kao demo prijava.
+      setSubmitted(true);
+    } finally {
+      setSending(false);
+    }
   }
 
   if (submitted) {
@@ -141,11 +161,19 @@ export default function PartnerForm() {
           />
         </label>
 
+        {submitError && (
+          <p role="alert" className="flex items-start gap-2 rounded-lg bg-terracotta/10 px-4 py-3 text-sm text-terracotta sm:col-span-2">
+            <AlertCircle size={16} className="mt-0.5 flex-none" aria-hidden="true" />
+            Nismo uspeli da pošaljemo prijavu. Proverite konekciju i pokušajte ponovo.
+          </p>
+        )}
+
         <button
           type="submit"
-          className="mt-2 flex min-h-[44px] items-center justify-center rounded-full bg-forest px-6 text-sm font-semibold text-warm-white hover:bg-forest/90 sm:col-span-2 sm:w-fit"
+          disabled={sending}
+          className="mt-2 flex min-h-[44px] items-center justify-center rounded-full bg-forest px-6 text-sm font-semibold text-warm-white hover:bg-forest/90 disabled:opacity-60 sm:col-span-2 sm:w-fit"
         >
-          Pošalji prijavu
+          {sending ? 'Slanje…' : 'Pošalji prijavu'}
         </button>
       </form>
     </div>
