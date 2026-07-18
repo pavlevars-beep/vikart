@@ -1,5 +1,7 @@
-<!-- BEGIN:nextjs-agent-rules -->
-# This is NOT the Next.js you know
+# VikArt — preview platforme
 
-This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
-<!-- END:nextjs-agent-rules -->
+Vite + React + TypeScript + Tailwind CSS. Vidi `CLAUDE.md` i `README.md` za pregled projekta, pokretanje i strukturu.
+
+- Podaci su odvojeni od UI komponenti u `src/data/*` i `src/types/index.ts`.
+- Mock/demo sadržaj (paketi, iskustva, smeštaj, partneri) ne predstavlja stvarno potvrđene ponude.
+- `npm run dev` za razvoj, `npm run build` za produkcioni build, `npm run lint` za ESLint.

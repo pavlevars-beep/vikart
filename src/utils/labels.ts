@@ -1,0 +1,114 @@
+import type {
+  OccasionKey,
+  TravelerTypeKey,
+  DateModeKey,
+  FeelingKey,
+  WantKey,
+  BudgetKey,
+  PaceKey,
+  ExperienceCategory,
+  AvailabilityLevel,
+  IntensityLevel,
+} from '@/types';
+
+export const occasionLabels: Record<OccasionKey, string> = {
+  'beg-od-svakodnevice': 'Beg od svakodnevice',
+  'romanticni-vikend': 'Romantičan vikend',
+  'godisnjica-rodjendan': 'Godišnjica ili rođendan',
+  'vikend-sa-ekipom': 'Vikend sa ekipom',
+  'momacko-devojacko': 'Momačko ili devojačko druženje',
+  'nesto-novo': 'Samo želimo nešto novo',
+};
+
+export const travelerTypeLabels: Record<TravelerTypeKey, string> = {
+  par: 'Par',
+  'zensko-drustvo': 'Žensko društvo',
+  'musko-drustvo': 'Muško društvo',
+  'mesovito-drustvo': 'Mešovito društvo',
+};
+
+export const dateModeLabels: Record<DateModeKey, string> = {
+  'konkretan-termin': 'Biram konkretan termin',
+  fleksibilni: 'Fleksibilni smo',
+  predlozite: 'Predložite najbolji vikend',
+};
+
+export const feelingLabels: Record<FeelingKey, string> = {
+  opusteno: 'Opušteno',
+  romanticno: 'Romantično',
+  uzbudljivo: 'Uzbudljivo',
+  razmazeno: 'Razmaženo',
+  povezano: 'Povezano',
+  veselo: 'Veselo',
+  autenticno: 'Autentično',
+};
+
+export const feelingDescriptions: Record<FeelingKey, string> = {
+  opusteno: 'Tempo bez žurbe i puno prostora za disanje.',
+  romanticno: 'Fokus na vas dvoje, uz malo pažnje više.',
+  uzbudljivo: 'Adrenalin i aktivnosti koje pokreću.',
+  razmazeno: 'Wellness, dobra hrana i mali luksuzi.',
+  povezano: 'Vreme provedeno zajedno, bez ometanja.',
+  veselo: 'Druženje, provod i dobra energija.',
+  autenticno: 'Lokalni ukusi, ljudi i priče.',
+};
+
+export const wantLabels: Record<WantKey, string> = {
+  'spa-masaza': 'Spa i masaža',
+  'vecera-gastronomija': 'Večera i gastronomija',
+  'kvad-offroad': 'Kvad ili off-road',
+  'ebike-priroda': 'E-bike i priroda',
+  jahanje: 'Jahanje',
+  'streljana-paintball': 'Streljana ili paintball',
+  'ziva-muzika': 'Živa muzika i izlazak',
+  fotografisanje: 'Fotografisanje',
+  'cvece-dekoracija': 'Cveće, torta ili dekoracija',
+  'tradicionalno-domacinstvo': 'Tradicionalno domaćinstvo',
+};
+
+export const budgetLabels: Record<BudgetKey, string> = {
+  'do-50000': 'do 50.000 RSD',
+  '50000-80000': '50.000–80.000 RSD',
+  '80000-120000': '80.000–120.000 RSD',
+  '120000-200000': '120.000–200.000 RSD',
+  'vise-od-200000': 'više od 200.000 RSD',
+  'predlozite-vi': 'Predložite vi',
+};
+
+export const budgetMidpoints: Record<BudgetKey, number> = {
+  'do-50000': 45000,
+  '50000-80000': 65000,
+  '80000-120000': 100000,
+  '120000-200000': 160000,
+  'vise-od-200000': 240000,
+  'predlozite-vi': 90000,
+};
+
+export const paceLabels: Record<PaceKey, string> = {
+  lagano: 'Lagano — jedno glavno iskustvo dnevno',
+  uravnotezeno: 'Uravnoteženo — preporučena opcija',
+  'pun-program': 'Pun program — želimo da iskoristimo svaki sat',
+};
+
+export const categoryLabels: Record<ExperienceCategory, string> = {
+  wellness: 'Wellness',
+  romantika: 'Romantika',
+  gastronomija: 'Gastronomija',
+  avantura: 'Avantura',
+  priroda: 'Priroda',
+  kultura: 'Kultura',
+  'nocni-provod': 'Noćni provod',
+  iznenadjenja: 'Posebna iznenađenja',
+};
+
+export const availabilityLabels: Record<AvailabilityLevel, string> = {
+  'brza-potvrda': 'Brza potvrda',
+  'potrebna-provera': 'Potrebna provera',
+  'concierge-zahtev': 'Concierge zahtev',
+};
+
+export const intensityLabels: Record<IntensityLevel, string> = {
+  lagano: 'Lagano',
+  umereno: 'Umereno',
+  intenzivno: 'Intenzivno',
+};

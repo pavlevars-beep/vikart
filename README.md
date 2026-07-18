@@ -1,36 +1,62 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# VikArt — Umetnost dobrog vikenda
 
-## Getting Started
+Interaktivan preview platforme za personalizovano kreiranje vikend iskustava. Pilot destinacija: Zlatibor.
 
-First, run the development server:
+Ovo je **preview/demo proizvod**: rezervacije, plaćanje i dostupnost dobavljača koriste lokalne, strukturirane mock podatke — nema pravog backend-a niti realnih transakcija.
+
+## Tehnologije
+
+- Vite + React + TypeScript
+- Tailwind CSS
+- React Router
+- Lucide React (ikonice)
+- Framer Motion (suptilne animacije)
+- `localStorage` za čuvanje konfiguratora, favorita i demo prijava
+
+## Pokretanje
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev       # razvoj, http://localhost:5173
+npm run build     # produkcioni build (tsc + vite build)
+npm run lint      # ESLint
+npm run preview   # pregled produkcionog build-a
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Struktura
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+src/
+  types/index.ts         # svi TypeScript tipovi (Experience, Package, GeneratedPlan, ...)
+  data/                   # mock sadržaj: experiences, packages, accommodations, images, feelings, partners
+  utils/                  # formatiranje, localStorage, generator predloga (planGenerator.ts)
+  components/
+    brand/                # VikArt logo (SVG)
+    layout/                # Header, Footer, Layout, sticky CTA
+    cards/                 # PackageCard, ExperienceCard, FeelingCard, PartnerCard
+    configurator/          # multi-step konfigurator (koraci + progress bar)
+    itinerary/             # vremenska linija plana po danima
+    forms/                 # forma za proveru plana
+    catalog/                # filteri kataloga iskustava
+  pages/                  # rute: Home, Configurator, Results, PlanDetail, Catalog, Packages, HowItWorks, Partners, PartnerForm
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Gde se menja sadržaj
 
-## Learn More
+- **Paketi** → `src/data/packages.ts`
+- **Iskustva** (katalog) → `src/data/experiences.ts`
+- **Smeštaj** → `src/data/accommodations.ts`
+- **Fotografije** → `src/data/images.ts` (fajlovi u `public/images/`, atribucija u `src/data/photoCredits.ts`)
+- **Logika predloga (3 plana)** → `src/utils/planGenerator.ts`
 
-To learn more about Next.js, take a look at the following resources:
+## Šta je mockovano
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- Cene, dostupnost smeštaja i iskustava — demonstracione procene, ne garantovane cene.
+- Slanje formi (provera plana, prijava partnera) — simulirano, čuva se u `localStorage`, sa `TODO` komentarom za buduću API integraciju.
+- Partneri prikazani na `/za-partnere` — ilustrativni demo primeri, ne predstavljaju potvrđenu saradnju.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Sledeći koraci za pravi proizvod
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Pravi backend za konfigurator, generisanje predloga i status zahteva.
+- Integracija plaćanja i potvrde rezervacije sa dobavljačima.
+- Partner portal za samostalno upravljanje ponudom, cenama i dostupnošću.
