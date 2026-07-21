@@ -16,6 +16,13 @@ import { accommodations, getAccommodationById } from '@/data/accommodations';
 import { budgetMidpoints } from './labels';
 import { readStorage, storageKeys } from './storage';
 
+export const DEFAULT_EXCLUDED = [
+  'Prevoz do Zlatibora',
+  'Obroci i slobodno vreme van navedenih iskustava — organizujete samostalno',
+  'Dodatna pića i lične potrošnje van dogovorenog programa',
+  'Osiguranje',
+];
+
 const WANT_TO_EXPERIENCE_IDS: Record<WantKey, string[]> = {
   'spa-masaza': ['masaza-za-dvoje', 'privatni-wellness-termin'],
   'vecera-gastronomija': [
@@ -167,6 +174,12 @@ export function planAvailability(selected: Experience[]): AvailabilityLevel {
   return worst;
 }
 
+/**
+ * Raspored prikazuje ISKLJUČIVO stvarno uključena iskustva iz plana — nema generičkih
+ * stavki tipa "Doručak" ili "Ručak" koje bi mogle da deluju kao da su deo ponude kad
+ * zapravo nisu. Dolazak i checkout ostaju kao logistički orijentiri (nisu usluga koja
+ * se naplaćuje), a sve ostalo vreme između njih gost organizuje samostalno.
+ */
 export function buildItinerary(selected: Experience[], nights: number, pace: PaceKey): ItineraryDay[] {
   const dayNames = ['Petak', 'Subota', 'Nedelja', 'Ponedeljak', 'Utorak'].slice(0, nights + 1);
   const pool = [...selected];
@@ -179,81 +192,56 @@ export function buildItinerary(selected: Experience[], nights: number, pace: Pac
 
   const takeAny = (): Experience | undefined => pool.shift();
 
+  const toItem = (time: string, exp: Experience): ItineraryItem => ({
+    time,
+    title: exp.name,
+    description: exp.shortDescription,
+    experienceId: exp.id,
+  });
+
   const days: ItineraryDay[] = [];
 
   // Dan dolaska
   const arrivalItems: ItineraryItem[] = [{ time: '17:00', title: 'Dolazak i prijava' }];
   const welcomeExp = takeByPredicate((e) => e.id === 'dekoracija-sobe-cvece');
-  arrivalItems.push(
-    welcomeExp
-      ? { time: '18:00', title: welcomeExp.name, description: welcomeExp.shortDescription, experienceId: welcomeExp.id }
-      : { time: '18:00', title: 'Welcome paket i slobodno vreme' },
-  );
+  if (welcomeExp) arrivalItems.push(toItem('18:00', welcomeExp));
   const dinnerExp = takeByPredicate((e) => DINNER_IDS.has(e.id));
-  arrivalItems.push(
-    dinnerExp
-      ? { time: '20:30', title: dinnerExp.name, description: dinnerExp.shortDescription, experienceId: dinnerExp.id }
-      : { time: '20:30', title: 'Večera po vašem izboru' },
-  );
+  if (dinnerExp) arrivalItems.push(toItem('20:30', dinnerExp));
   days.push({ dayLabel: dayNames[0], items: arrivalItems });
 
-  // Puni dani
+  // Puni dani — samo onoliko stavki koliko ima stvarno uključenih iskustava
   const activityCount = pace === 'lagano' ? 1 : pace === 'pun-program' ? 3 : 2;
+  const slotTimes = ['10:00', '14:30', '18:00'];
   for (let day = 1; day < nights; day += 1) {
-    const items: ItineraryItem[] = [{ time: '09:00', title: 'Doručak' }];
-    const morningExp = takeAny();
-    items.push(
-      morningExp
-        ? { time: '11:00', title: morningExp.name, description: morningExp.shortDescription, experienceId: morningExp.id }
-        : { time: '11:00', title: 'Slobodno vreme' },
-    );
-    items.push({ time: '14:00', title: 'Ručak' });
-    if (activityCount >= 2) {
-      const afternoonExp = takeAny();
-      items.push(
-        afternoonExp
-          ? { time: '17:00', title: afternoonExp.name, description: afternoonExp.shortDescription, experienceId: afternoonExp.id }
-          : { time: '17:00', title: 'Slobodno vreme ili wellness' },
-      );
+    const items: ItineraryItem[] = [];
+    for (let slot = 0; slot < activityCount; slot += 1) {
+      const isLastSlotOfLastFullDay = day === nights - 1 && slot === activityCount - 1;
+      const exp = isLastSlotOfLastFullDay
+        ? (takeByPredicate((e) => e.category === 'nocni-provod') ?? takeAny())
+        : takeAny();
+      if (exp) items.push(toItem(slotTimes[slot], exp));
     }
-    if (activityCount >= 3) {
-      const eveningExp = takeAny();
-      items.push(
-        eveningExp
-          ? { time: '21:00', title: eveningExp.name, description: eveningExp.shortDescription, experienceId: eveningExp.id }
-          : { time: '21:00', title: 'Izlazak ili druženje' },
-      );
-    } else if (day === nights - 1) {
-      const eveningExp = takeByPredicate((e) => e.category === 'nocni-provod');
-      if (eveningExp) {
-        items.push({ time: '21:00', title: eveningExp.name, description: eveningExp.shortDescription, experienceId: eveningExp.id });
-      }
+    if (items.length === 0) {
+      items.push({ time: '—', title: 'Slobodan dan', description: 'Tempo i sadržaj ovog dana birate sami.' });
     }
     days.push({ dayLabel: dayNames[day], items });
   }
 
   // Dan odlaska
   const lastActivity = takeByPredicate((e) => e.category === 'priroda' || e.category === 'kultura') ?? takeAny();
-  const departureItems: ItineraryItem[] = [
-    lastActivity
-      ? { time: '10:00', title: lastActivity.name, description: lastActivity.shortDescription, experienceId: lastActivity.id }
-      : { time: '10:00', title: 'Lagana aktivnost ili obilazak' },
-    { time: '13:00', title: 'Lokalni ručak' },
-    { time: '16:00', title: 'Kasni checkout i povratak' },
-  ];
+  const departureItems: ItineraryItem[] = [];
+  if (lastActivity) departureItems.push(toItem('10:00', lastActivity));
+  departureItems.push({ time: '13:00', title: 'Kasni checkout i povratak' });
   days.push({ dayLabel: dayNames[nights] ?? `Dan ${nights + 1}`, items: departureItems });
 
-  // Preostala iskustva koja nisu stigla u raspored dodajemo pred kraj poslednjeg punog dana
+  // Preostala iskustva koja nisu stigla u raspored dodajemo na prvi pun dan (ili dan dolaska ako nema punih dana)
+  const fullDayIndex = nights > 1 ? 1 : 0;
   while (pool.length > 0) {
     const leftover = takeAny();
     if (!leftover) break;
-    const targetDay = days[Math.max(1, days.length - 2)];
-    targetDay.items.splice(targetDay.items.length - 1, 0, {
-      time: '—',
-      title: leftover.name,
-      description: leftover.shortDescription,
-      experienceId: leftover.id,
-    });
+    const targetDay = days[fullDayIndex];
+    const withoutFallback = targetDay.items.filter((item) => item.experienceId || item.title !== 'Slobodan dan');
+    targetDay.items = [...withoutFallback, toItem('—', leftover)];
   }
 
   return days;
@@ -300,11 +288,7 @@ function buildPlan(tier: PlanTier, answers: ConfiguratorAnswers): GeneratedPlan 
     ...selected.map((exp) => exp.name),
     'Koordinacija celog rasporeda od strane VikArt tima',
   ];
-  const excluded = [
-    'Prevoz do Zlatibora',
-    'Dodatna pića i lične potrošnje van dogovorenog programa',
-    'Osiguranje',
-  ];
+  const excluded = [...DEFAULT_EXCLUDED];
 
   return {
     id: `${tier}-${Date.now()}`,

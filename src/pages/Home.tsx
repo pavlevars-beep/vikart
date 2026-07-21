@@ -30,7 +30,7 @@ const steps = [
   },
   {
     icon: ListChecks,
-    title: 'Dobij tri izvodljiva predloga',
+    title: 'Dobijate tri izvodljiva predloga',
     description: 'Pametan izbor, VikArt preporuku i Premium verziju — svaki sa jasnim rasporedom i cenom.',
   },
   {

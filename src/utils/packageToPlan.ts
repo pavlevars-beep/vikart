@@ -1,7 +1,7 @@
 import type { GeneratedPlan, Package } from '@/types';
 import { getAccommodationById } from '@/data/accommodations';
 import { getExperienceById } from '@/data/experiences';
-import { buildItinerary, planAvailability } from './planGenerator';
+import { buildItinerary, planAvailability, DEFAULT_EXCLUDED } from './planGenerator';
 
 export function packageToPlan(pkg: Package): GeneratedPlan {
   const accommodation = getAccommodationById(pkg.accommodationId);
@@ -24,7 +24,7 @@ export function packageToPlan(pkg: Package): GeneratedPlan {
     experiences: selectedExperiences,
     days: buildItinerary(selectedExperiences, pkg.nights, 'uravnotezeno'),
     included: [`${pkg.nights} noćenja u smeštaju „${accommodation.name}"`, ...pkg.highlights],
-    excluded: ['Prevoz do Zlatibora', 'Dodatna pića i lične potrošnje van dogovorenog programa', 'Osiguranje'],
+    excluded: [...DEFAULT_EXCLUDED],
     availability: planAvailability(selectedExperiences),
     badWeatherAlternative:
       'Ukoliko vreme ne bude pogodno za spoljne aktivnosti, predlažemo zamenu za wellness termin, degustaciju ili obilazak Stopića pećine — sve u indoor okruženju.',

@@ -66,6 +66,10 @@ export default function PlanDetail() {
 
         <section className="mt-10">
           <h2 className="font-serif text-2xl text-ink">Raspored po danima</h2>
+          <p className="mt-1.5 text-sm text-ink-soft">
+            Prikazana su samo iskustva uključena u ovaj plan. Obroci i slobodno vreme između njih (osim onih koji su
+            eksplicitno navedeni) organizujete samostalno.
+          </p>
           <div className="mt-5">
             <Timeline days={plan.days} />
           </div>
