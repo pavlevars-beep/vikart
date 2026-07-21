@@ -5,6 +5,7 @@ import { experiences } from '@/data/experiences';
 import ExperienceCard from '@/components/cards/ExperienceCard';
 import FilterPanel from '@/components/catalog/FilterPanel';
 import MobileFilterSheet from '@/components/catalog/MobileFilterSheet';
+import PicksBanner from '@/components/catalog/PicksBanner';
 import { defaultFilters, countActiveFilters } from '@/components/catalog/filterTypes';
 
 export default function Catalog() {
@@ -36,6 +37,8 @@ export default function Catalog() {
           Wellness, gastronomija, avantura, priroda, kultura i još mnogo toga — sve što možemo da uklopimo u vaš vikend.
         </p>
       </div>
+
+      <PicksBanner />
 
       <div className="mt-6 flex items-center justify-between gap-3 lg:hidden">
         <button

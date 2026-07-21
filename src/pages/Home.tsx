@@ -16,6 +16,7 @@ import QuickStartCard from '@/components/home/QuickStartCard';
 import PackageCard from '@/components/cards/PackageCard';
 import FeelingCard from '@/components/cards/FeelingCard';
 import ExperienceCard from '@/components/cards/ExperienceCard';
+import PicksBanner from '@/components/catalog/PicksBanner';
 import { packages } from '@/data/packages';
 import { feelingCards } from '@/data/feelings';
 import { experiences } from '@/data/experiences';
@@ -79,13 +80,30 @@ export default function Home() {
             <span className="inline-flex items-center rounded-full bg-warm-white/10 px-3 py-1 text-xs font-medium text-warm-white/90 ring-1 ring-warm-white/20">
               Pilot destinacija · Zlatibor
             </span>
-            <h1 className="mt-5 font-serif text-4xl leading-tight text-warm-white sm:text-5xl">
+            <p className="mt-4 text-xs font-semibold uppercase tracking-wide text-gold">
+              Platforma koja vam sastavlja ceo vikend na Zlatiboru
+            </p>
+            <h1 className="mt-2 font-serif text-4xl leading-tight text-warm-white sm:text-5xl">
               Ti izaberi kako želiš da se osećaš. Mi ćemo srediti sve ostalo.
             </h1>
             <p className="mt-4 text-base text-warm-white/85 sm:text-lg">
               Kaži nam ko putuje, kada dolazite i koliki je budžet. VikArt spaja smeštaj i pažljivo odabrana iskustva u
               jedan logičan i izvodljiv plan.
             </p>
+            <ol className="mt-6 flex flex-col gap-2.5 border-l-2 border-warm-white/20 pl-4 text-sm text-warm-white/80 sm:flex-row sm:gap-6 sm:border-l-0 sm:border-t-0 sm:pl-0">
+              <li className="flex items-center gap-2">
+                <span className="flex h-5 w-5 flex-none items-center justify-center rounded-full bg-warm-white/15 text-xs font-semibold text-warm-white">1</span>
+                Odgovorite na par pitanja
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="flex h-5 w-5 flex-none items-center justify-center rounded-full bg-warm-white/15 text-xs font-semibold text-warm-white">2</span>
+                Dobijete 3 gotova plana
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="flex h-5 w-5 flex-none items-center justify-center rounded-full bg-warm-white/15 text-xs font-semibold text-warm-white">3</span>
+                Mi proveravamo i potvrđujemo
+              </li>
+            </ol>
             <div className="mt-7 flex flex-col gap-3 sm:flex-row">
               <Link
                 to="/konfigurator"
@@ -112,6 +130,11 @@ export default function Home() {
       {/* Kako funkcioniše */}
       <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <h2 className="font-serif text-3xl text-ink">Kako funkcioniše</h2>
+        <p className="mt-3 max-w-2xl text-ink-soft">
+          VikArt je vaš lični organizator vikenda na Zlatiboru. Umesto da sami tražite smeštaj, restoran, masažu i
+          aktivnosti i zovete svakog posebno, kažete nam ko putuje i šta vam znači dobar vikend — mi sastavljamo gotov
+          plan sa jasnom cenom i rasporedom.
+        </p>
         <div className="mt-8 grid gap-6 sm:grid-cols-3">
           {steps.map((step, index) => (
             <div key={step.title} className="rounded-xl2 border border-ink/8 bg-warm-white p-6 shadow-card">
@@ -175,6 +198,7 @@ export default function Home() {
           <Link to="/iskustva" className="mt-6 block text-center text-sm font-semibold text-forest hover:underline sm:hidden">
             Ceo katalog →
           </Link>
+          <PicksBanner />
         </div>
       </section>
 

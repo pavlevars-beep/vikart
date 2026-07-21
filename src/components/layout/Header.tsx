@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 import Logo from '@/components/brand/Logo';
+import { useCatalogPicks } from '@/hooks/useCatalogPicks';
 
 const navLinks = [
   { to: '/iskustva', label: 'Iskustva' },
@@ -13,6 +14,7 @@ const navLinks = [
 export default function Header() {
   const [open, setOpen] = useState(false);
   const location = useLocation();
+  const { picks } = useCatalogPicks();
 
   useEffect(() => {
     setOpen(false);
@@ -51,9 +53,17 @@ export default function Header() {
         <div className="flex items-center gap-3">
           <Link
             to="/konfigurator"
-            className="hidden rounded-full bg-forest px-5 py-2.5 text-sm font-semibold text-warm-white transition-colors hover:bg-forest/90 lg:inline-flex"
+            className="relative hidden rounded-full bg-forest px-5 py-2.5 text-sm font-semibold text-warm-white transition-colors hover:bg-forest/90 lg:inline-flex"
           >
             Napravi moje iskustvo
+            {picks.length > 0 && (
+              <span
+                className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-gold text-xs font-bold text-ink"
+                aria-label={`${picks.length} sačuvanih iskustava`}
+              >
+                {picks.length}
+              </span>
+            )}
           </Link>
           <button
             type="button"
@@ -85,9 +95,14 @@ export default function Header() {
             ))}
             <Link
               to="/konfigurator"
-              className="mt-2 min-h-[44px] rounded-full bg-forest px-5 py-3 text-center text-base font-semibold text-warm-white"
+              className="mt-2 flex min-h-[44px] items-center justify-center gap-2 rounded-full bg-forest px-5 py-3 text-center text-base font-semibold text-warm-white"
             >
               Napravi moje iskustvo
+              {picks.length > 0 && (
+                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-gold text-xs font-bold text-ink">
+                  {picks.length}
+                </span>
+              )}
             </Link>
           </nav>
         </div>
