@@ -12,10 +12,21 @@ const contactOptions: { key: PreferredContact; label: string }[] = [
 
 interface PlanReviewFormProps {
   planTitle: string;
-  totalPrice?: number;
+  totalPrice: number;
+  nights: number;
+  groupSize: number;
+  accommodationName: string;
+  experienceNames: string[];
 }
 
-export default function PlanReviewForm({ planTitle, totalPrice }: PlanReviewFormProps) {
+export default function PlanReviewForm({
+  planTitle,
+  totalPrice,
+  nights,
+  groupSize,
+  accommodationName,
+  experienceNames,
+}: PlanReviewFormProps) {
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
@@ -60,7 +71,19 @@ export default function PlanReviewForm({ planTitle, totalPrice }: PlanReviewForm
       const res = await fetch('/api/inquiry', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ fullName, phone, email, preferredContact, note, planTitle, totalPrice }),
+        body: JSON.stringify({
+          fullName,
+          phone,
+          email,
+          preferredContact,
+          note,
+          planTitle,
+          totalPrice,
+          nights,
+          groupSize,
+          accommodationName,
+          experienceNames,
+        }),
       });
       if (res.ok) {
         setSubmitted(true);

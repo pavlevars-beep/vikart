@@ -10,6 +10,10 @@ interface InquiryPayload {
   note?: string;
   planTitle?: string;
   totalPrice?: number;
+  nights?: number;
+  groupSize?: number;
+  accommodationName?: string;
+  experienceNames?: string[];
 }
 
 export default async function handler(req: Request): Promise<Response> {
@@ -32,12 +36,19 @@ export default async function handler(req: Request): Promise<Response> {
     '🟢 <b>Novi zahtev za proveru plana</b>',
     body.planTitle ? `Plan: ${escapeHtml(body.planTitle)}` : null,
     body.totalPrice ? `Procena: ${new Intl.NumberFormat('sr-RS').format(body.totalPrice)} RSD` : null,
+    body.nights ? `Noćenja: ${body.nights}` : null,
+    body.groupSize ? `Broj osoba: ${body.groupSize}` : null,
+    body.accommodationName ? `Smeštaj: ${escapeHtml(body.accommodationName)}` : null,
+    body.experienceNames?.length
+      ? `Uključena iskustva:\n${body.experienceNames.map((name) => `• ${escapeHtml(name)}`).join('\n')}`
+      : null,
+    '',
     `Ime: ${escapeHtml(body.fullName)}`,
     `Telefon: ${escapeHtml(body.phone)}`,
     `Email: ${escapeHtml(body.email)}`,
     body.preferredContact ? `Preferirani kontakt: ${escapeHtml(body.preferredContact)}` : null,
     body.note ? `Napomena: ${escapeHtml(body.note)}` : null,
-  ].filter((line): line is string => Boolean(line));
+  ].filter((line): line is string => line !== null);
 
   try {
     await sendTelegramMessage(lines.join('\n'));

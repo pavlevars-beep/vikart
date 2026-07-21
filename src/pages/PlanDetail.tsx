@@ -98,7 +98,14 @@ export default function PlanDetail() {
         </section>
 
         <div ref={formRef} className="mt-12 scroll-mt-20">
-          <PlanReviewForm planTitle={plan.title} totalPrice={plan.totalPrice} />
+          <PlanReviewForm
+            planTitle={plan.title}
+            totalPrice={plan.totalPrice}
+            nights={plan.nights}
+            groupSize={plan.groupSize}
+            accommodationName={plan.accommodation.name}
+            experienceNames={plan.experiences.map((exp) => exp.name)}
+          />
         </div>
       </div>
 
