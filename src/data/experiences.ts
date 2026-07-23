@@ -21,6 +21,8 @@ export const experiences: Experience[] = [
     intensity: 'lagano',
     suitableFor: ['par', 'drustvo'],
     tags: ['Wellness', 'Opuštanje', 'Parovi'],
+    partnerId: 'mountain-spa-zlatibor',
+    offerId: 'offer-masaza-za-dvoje',
   },
   {
     id: 'privatni-wellness-termin',
@@ -41,6 +43,8 @@ export const experiences: Experience[] = [
     intensity: 'lagano',
     suitableFor: ['par', 'drustvo'],
     tags: ['Wellness', 'Privatnost'],
+    partnerId: 'mountain-spa-zlatibor',
+    offerId: 'offer-privatni-wellness-termin',
   },
   {
     id: 'romanticna-vecera',
@@ -61,6 +65,8 @@ export const experiences: Experience[] = [
     intensity: 'lagano',
     suitableFor: ['par'],
     tags: ['Romantika', 'Gastronomija', 'Parovi'],
+    partnerId: 'konoba-ovcarnik',
+    offerId: 'offer-romanticna-vecera',
   },
   {
     id: 'dekoracija-sobe-cvece',
@@ -81,6 +87,8 @@ export const experiences: Experience[] = [
     intensity: 'lagano',
     suitableFor: ['par'],
     tags: ['Romantika', 'Dekoracija', 'Iznenađenje'],
+    partnerId: 'cvetni-atelje-zlatibor',
+    offerId: 'offer-dekoracija-sobe-cvece',
   },
   {
     id: 'fotografisanje-para',
@@ -101,6 +109,8 @@ export const experiences: Experience[] = [
     intensity: 'lagano',
     suitableFor: ['par', 'drustvo'],
     tags: ['Fotografisanje', 'Priroda', 'Uspomena'],
+    partnerId: 'jovan-lens',
+    offerId: 'offer-fotografisanje-para',
   },
   {
     id: 'degustacija-domacih-specijaliteta',
@@ -121,6 +131,8 @@ export const experiences: Experience[] = [
     intensity: 'lagano',
     suitableFor: ['par', 'drustvo'],
     tags: ['Gastronomija', 'Lokalno'],
+    partnerId: 'domacinstvo-sirogojno',
+    offerId: 'offer-degustacija-domacih-specijaliteta',
   },
   {
     id: 'rostilj-domaca-kuhinja',
@@ -141,6 +153,8 @@ export const experiences: Experience[] = [
     intensity: 'umereno',
     suitableFor: ['par', 'drustvo'],
     tags: ['Gastronomija', 'Društvo'],
+    partnerId: 'konoba-ovcarnik',
+    offerId: 'offer-rostilj-domaca-kuhinja',
   },
   {
     id: 'voznja-kvadovima',
@@ -161,6 +175,8 @@ export const experiences: Experience[] = [
     intensity: 'intenzivno',
     suitableFor: ['par', 'drustvo'],
     tags: ['Avantura', 'Off-road'],
+    partnerId: 'tornik-quad-adventures',
+    offerId: 'offer-voznja-kvadovima',
   },
   {
     id: 'ebike-tura-tornik',
@@ -181,6 +197,8 @@ export const experiences: Experience[] = [
     intensity: 'umereno',
     suitableFor: ['par', 'drustvo'],
     tags: ['Avantura', 'Priroda', 'Aktivno'],
+    partnerId: 'zlatibor-ebike-tours',
+    offerId: 'offer-ebike-tura-tornik',
   },
   {
     id: 'jahanje',
@@ -201,6 +219,8 @@ export const experiences: Experience[] = [
     intensity: 'umereno',
     suitableFor: ['par', 'drustvo'],
     tags: ['Avantura', 'Priroda'],
+    partnerId: 'ranc-vranesi',
+    offerId: 'offer-jahanje',
   },
   {
     id: 'streljana-i-paintball',
@@ -221,6 +241,8 @@ export const experiences: Experience[] = [
     intensity: 'intenzivno',
     suitableFor: ['drustvo'],
     tags: ['Avantura', 'Društvo', 'Adrenalin'],
+    partnerId: 'streljana-adrenalin',
+    offerId: 'offer-streljana-i-paintball',
   },
   {
     id: 'stopica-pecina',
@@ -241,6 +263,8 @@ export const experiences: Experience[] = [
     intensity: 'lagano',
     suitableFor: ['par', 'drustvo'],
     tags: ['Priroda', 'Kultura'],
+    partnerId: 'zlatibor-tours-guide',
+    offerId: 'offer-stopica-pecina',
   },
   {
     id: 'gostiljski-vodopad',
@@ -261,6 +285,8 @@ export const experiences: Experience[] = [
     intensity: 'lagano',
     suitableFor: ['par', 'drustvo'],
     tags: ['Priroda', 'Šetnja'],
+    partnerId: 'zlatibor-tours-guide',
+    offerId: 'offer-gostiljski-vodopad',
   },
   {
     id: 'ribnicko-jezero-setnja',
@@ -281,6 +307,8 @@ export const experiences: Experience[] = [
     intensity: 'lagano',
     suitableFor: ['par', 'drustvo'],
     tags: ['Priroda', 'Opuštanje'],
+    partnerId: 'zlatibor-tours-guide',
+    offerId: 'offer-ribnicko-jezero-setnja',
   },
   {
     id: 'panoramska-setnja-vidikovci',
@@ -301,6 +329,8 @@ export const experiences: Experience[] = [
     intensity: 'lagano',
     suitableFor: ['par', 'drustvo'],
     tags: ['Priroda', 'Šetnja'],
+    partnerId: 'zlatibor-tours-guide',
+    offerId: 'offer-panoramska-setnja-vidikovci',
   },
   {
     id: 'sirogojno-muzej',
@@ -321,6 +351,8 @@ export const experiences: Experience[] = [
     intensity: 'lagano',
     suitableFor: ['par', 'drustvo'],
     tags: ['Kultura', 'Priroda'],
+    partnerId: 'zlatibor-tours-guide',
+    offerId: 'offer-sirogojno-muzej',
   },
   {
     id: 'autentican-obrok-domacinstvo',
@@ -341,6 +373,8 @@ export const experiences: Experience[] = [
     intensity: 'lagano',
     suitableFor: ['par', 'drustvo'],
     tags: ['Kultura', 'Gastronomija', 'Autentično'],
+    partnerId: 'domacinstvo-sirogojno',
+    offerId: 'offer-autentican-obrok-domacinstvo',
   },
   {
     id: 'vecera-uz-zivu-muziku',
@@ -361,6 +395,8 @@ export const experiences: Experience[] = [
     intensity: 'umereno',
     suitableFor: ['par', 'drustvo'],
     tags: ['Noćni provod', 'Gastronomija'],
+    partnerId: 'zlatna-koliba',
+    offerId: 'offer-vecera-uz-zivu-muziku',
   },
   {
     id: 'druzenje-uz-vatru',
@@ -381,6 +417,8 @@ export const experiences: Experience[] = [
     intensity: 'lagano',
     suitableFor: ['par', 'drustvo'],
     tags: ['Noćni provod', 'Druženje'],
+    partnerId: 'zlatibor-house',
+    offerId: 'offer-druzenje-uz-vatru',
   },
   {
     id: 'tajno-iznenadjenje-prosidba',
@@ -401,6 +439,8 @@ export const experiences: Experience[] = [
     intensity: 'lagano',
     suitableFor: ['par'],
     tags: ['Iznenađenje', 'Prosidba', 'Concierge'],
+    partnerId: 'cvetni-atelje-zlatibor',
+    offerId: 'offer-tajno-iznenadjenje-prosidba',
   },
   {
     id: 'diskretna-proslava-rodjendana',
@@ -421,6 +461,8 @@ export const experiences: Experience[] = [
     intensity: 'umereno',
     suitableFor: ['par', 'drustvo'],
     tags: ['Iznenađenje', 'Rođendan'],
+    partnerId: 'cvetni-atelje-zlatibor',
+    offerId: 'offer-diskretna-proslava-rodjendana',
   },
 ];
 

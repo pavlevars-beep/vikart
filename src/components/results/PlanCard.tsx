@@ -1,10 +1,15 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { X, RefreshCw, Plus, Check, Minus } from 'lucide-react';
+import { X, RefreshCw, Plus, Check, Minus, Users2 } from 'lucide-react';
 import type { Experience, GeneratedPlan } from '@/types';
 import { formatPrice } from '@/utils/format';
 import { availabilityLabels } from '@/utils/labels';
 import { experiences as allExperiences } from '@/data/experiences';
+
+function involvedPartnerCount(plan: GeneratedPlan): number {
+  const ids = new Set<string>([plan.accommodation.id, ...plan.experiences.map((exp) => exp.partnerId)]);
+  return ids.size;
+}
 
 interface PlanCardProps {
   plan: GeneratedPlan;
@@ -39,14 +44,19 @@ export default function PlanCard({ plan, highlighted, onRemove, onSwap, onAdd }:
       </div>
       <p className="text-sm text-ink-soft">{formatPrice(plan.pricePerPerson)} po osobi · {plan.nights} {plan.nights === 1 ? 'noćenje' : 'noćenja'}</p>
 
-      <span className="mt-2 inline-flex w-fit rounded-full bg-sage px-2.5 py-1 text-xs font-medium text-forest">
-        {availabilityLabels[plan.availability]}
-      </span>
+      <div className="mt-2 flex flex-wrap items-center gap-2">
+        <span className="inline-flex w-fit rounded-full bg-sage px-2.5 py-1 text-xs font-medium text-forest">
+          {availabilityLabels[plan.availability]}
+        </span>
+        <span className="inline-flex items-center gap-1 text-xs text-ink-soft">
+          <Users2 size={13} aria-hidden="true" /> {involvedPartnerCount(plan)} partnera uključeno
+        </span>
+      </div>
 
       <div className="mt-5 rounded-xl2 bg-cream p-4">
         <p className="text-xs font-semibold uppercase tracking-wide text-ink-soft">Smeštaj</p>
         <p className="mt-1 font-serif text-lg text-ink">{plan.accommodation.name}</p>
-        <p className="text-sm text-ink-soft">{plan.accommodation.description}</p>
+        <p className="text-sm text-ink-soft">{plan.accommodation.oneLiner}</p>
       </div>
 
       <div className="mt-5">
@@ -136,18 +146,23 @@ export default function PlanCard({ plan, highlighted, onRemove, onSwap, onAdd }:
         <div>
           <p className="font-semibold text-ink">Nije uključeno</p>
           <ul className="mt-1 list-inside list-disc space-y-0.5">
-            {plan.excluded.map((item) => (
+            {plan.excluded.slice(0, 3).map((item) => (
               <li key={item}>{item}</li>
             ))}
           </ul>
         </div>
       </div>
+      {plan.pendingConfirmation.length > 0 && (
+        <p className="mt-3 rounded-lg bg-gold/10 px-3 py-2 text-xs text-ink">
+          {plan.pendingConfirmation.length} {plan.pendingConfirmation.length === 1 ? 'stavka čeka' : 'stavke čekaju'} proveru dostupnosti pre potvrde plana.
+        </p>
+      )}
 
       <Link
         to={`/plan/${plan.tier}`}
         className="mt-6 flex min-h-[44px] items-center justify-center rounded-full bg-forest px-5 text-sm font-semibold text-warm-white hover:bg-forest/90"
       >
-        Vidi detaljan itinerer
+        Pogledaj kompletan plan
       </Link>
     </article>
   );

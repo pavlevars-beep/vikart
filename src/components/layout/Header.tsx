@@ -7,6 +7,7 @@ import { useCatalogPicks } from '@/hooks/useCatalogPicks';
 const navLinks = [
   { to: '/iskustva', label: 'Iskustva' },
   { to: '/paketi', label: 'Paketi' },
+  { to: '/partneri', label: 'Partneri' },
   { to: '/kako-funkcionise', label: 'Kako funkcioniše' },
   { to: '/za-partnere', label: 'Za partnere' },
 ];

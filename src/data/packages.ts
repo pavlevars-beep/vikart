@@ -111,7 +111,7 @@ export const packages: Package[] = [
     ],
     tags: ['Društvo', 'Provod', 'Avantura', 'Šest osoba'],
     image: images.quadBike,
-    accommodationId: 'kuca-za-ekipu',
+    accommodationId: 'zlatibor-house',
     experienceIds: [
       'voznja-kvadovima',
       'streljana-i-paintball',

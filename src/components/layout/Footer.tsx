@@ -17,6 +17,7 @@ export default function Footer() {
             <ul className="mt-3 space-y-2 text-sm text-warm-white/80">
               <li><Link to="/iskustva" className="hover:text-warm-white">Iskustva</Link></li>
               <li><Link to="/paketi" className="hover:text-warm-white">Paketi</Link></li>
+              <li><Link to="/partneri" className="hover:text-warm-white">Partneri</Link></li>
               <li><Link to="/kako-funkcionise" className="hover:text-warm-white">Kako funkcioniše</Link></li>
               <li><Link to="/konfigurator" className="hover:text-warm-white">Napravi moje iskustvo</Link></li>
             </ul>

@@ -32,6 +32,11 @@ export default function PlanReviewForm({
   const [email, setEmail] = useState('');
   const [preferredContact, setPreferredContact] = useState<PreferredContact>('telefon');
   const [note, setNote] = useState('');
+  const [allergies, setAllergies] = useState('');
+  const [vegetarian, setVegetarian] = useState(false);
+  const [vegan, setVegan] = useState(false);
+  const [religiousOrOther, setReligiousOrOther] = useState('');
+  const [dietaryNote, setDietaryNote] = useState('');
   const [consent, setConsent] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
@@ -60,6 +65,7 @@ export default function PlanReviewForm({
       preferredContact,
       note: note ? `[${planTitle}] ${note}` : `[${planTitle}]`,
       consent,
+      dietary: { allergies, vegetarian, vegan, religiousOrOther, additionalNote: dietaryNote },
       createdAt: new Date().toISOString(),
     };
 
@@ -77,6 +83,7 @@ export default function PlanReviewForm({
           email,
           preferredContact,
           note,
+          dietary: { allergies, vegetarian, vegan, religiousOrOther, additionalNote: dietaryNote },
           planTitle,
           totalPrice,
           nights,
@@ -188,6 +195,50 @@ export default function PlanReviewForm({
             className="w-full rounded-lg border border-ink/15 bg-warm-white p-3 text-ink"
           />
         </label>
+
+        <fieldset className="text-sm sm:col-span-2">
+          <legend className="mb-1.5 font-medium text-ink">Ishrana i dijetarne napomene (opciono)</legend>
+          <div className="flex flex-wrap gap-4">
+            <label className="inline-flex items-center gap-2">
+              <input type="checkbox" checked={vegetarian} onChange={(e) => setVegetarian(e.target.checked)} className="h-5 w-5 rounded border-ink/30" />
+              Vegetarijanski
+            </label>
+            <label className="inline-flex items-center gap-2">
+              <input type="checkbox" checked={vegan} onChange={(e) => setVegan(e.target.checked)} className="h-5 w-5 rounded border-ink/30" />
+              Veganski
+            </label>
+          </div>
+          <div className="mt-3 grid gap-3 sm:grid-cols-2">
+            <label className="text-sm">
+              <span className="mb-1.5 block text-ink-soft">Alergije</span>
+              <input
+                type="text"
+                value={allergies}
+                onChange={(e) => setAllergies(e.target.value)}
+                placeholder="npr. kikiriki, školjke"
+                className="min-h-[44px] w-full rounded-lg border border-ink/15 bg-warm-white px-3 text-ink"
+              />
+            </label>
+            <label className="text-sm">
+              <span className="mb-1.5 block text-ink-soft">Verska ili druga restrikcija</span>
+              <input
+                type="text"
+                value={religiousOrOther}
+                onChange={(e) => setReligiousOrOther(e.target.value)}
+                className="min-h-[44px] w-full rounded-lg border border-ink/15 bg-warm-white px-3 text-ink"
+              />
+            </label>
+          </div>
+          <label className="mt-3 block text-sm">
+            <span className="mb-1.5 block text-ink-soft">Dodatna napomena o ishrani</span>
+            <textarea
+              value={dietaryNote}
+              onChange={(e) => setDietaryNote(e.target.value)}
+              rows={2}
+              className="w-full rounded-lg border border-ink/15 bg-warm-white p-3 text-ink"
+            />
+          </label>
+        </fieldset>
 
         <label className="flex items-start gap-2 text-sm sm:col-span-2">
           <input

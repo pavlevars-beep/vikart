@@ -11,7 +11,9 @@ import {
 } from 'lucide-react';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import PartnerCard from '@/components/cards/PartnerCard';
-import { demoPartners } from '@/data/partners';
+import { partners } from '@/data/partners';
+
+const demoPartners = partners.slice(0, 3);
 
 const benefits = [
   { icon: BadgePercent, text: 'Nema početne naknade u pilot fazi' },

@@ -10,6 +10,8 @@ import Packages from '@/pages/Packages';
 import HowItWorks from '@/pages/HowItWorks';
 import Partners from '@/pages/Partners';
 import PartnerForm from '@/pages/PartnerForm';
+import PartnerDirectory from '@/pages/PartnerDirectory';
+import PartnerDetail from '@/pages/PartnerDetail';
 import NotFound from '@/pages/NotFound';
 
 export default function App() {
@@ -24,6 +26,8 @@ export default function App() {
           <Route path="/kako-funkcionise" element={<HowItWorks />} />
           <Route path="/za-partnere" element={<Partners />} />
           <Route path="/za-partnere/prijava" element={<PartnerForm />} />
+          <Route path="/partneri" element={<PartnerDirectory />} />
+          <Route path="/partneri/:slug" element={<PartnerDetail />} />
           <Route path="*" element={<NotFound />} />
         </Route>
         <Route element={<Layout showStickyMobileCta={false} />}>

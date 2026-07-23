@@ -12,7 +12,8 @@ import type {
   PaceKey,
 } from '@/types';
 import { experiences } from '@/data/experiences';
-import { accommodations, getAccommodationById } from '@/data/accommodations';
+import { partners, getPartnerById } from '@/data/partners';
+import { getPartnerOfferById } from '@/data/partnerOffers';
 import { budgetMidpoints } from './labels';
 import { readStorage, storageKeys } from './storage';
 
@@ -127,7 +128,7 @@ function rankedCandidates(answers: ConfiguratorAnswers): Experience[] {
 }
 
 function pickAccommodationId(tier: PlanTier, groupSize: number): string {
-  if (groupSize > 4) return 'kuca-za-ekipu';
+  if (groupSize > 4) return 'zlatibor-house';
   if (groupSize > 2) return 'vila-panorama';
   return tier === 'premium' ? 'vila-panorama' : 'apartman-cigota';
 }
@@ -177,8 +178,8 @@ export function planAvailability(selected: Experience[]): AvailabilityLevel {
 /**
  * Raspored prikazuje ISKLJUČIVO stvarno uključena iskustva iz plana — nema generičkih
  * stavki tipa "Doručak" ili "Ručak" koje bi mogle da deluju kao da su deo ponude kad
- * zapravo nisu. Dolazak i checkout ostaju kao logistički orijentiri (nisu usluga koja
- * se naplaćuje), a sve ostalo vreme između njih gost organizuje samostalno.
+ * zapravo nisu. Stavke su označene kao `usluga` (ima konkretnog partnera — dolazak,
+ * prijava, checkout i slobodno vreme ostaju `logistika`, bez izmišljenog partnera.
  */
 export function buildItinerary(selected: Experience[], nights: number, pace: PaceKey): ItineraryDay[] {
   const dayNames = ['Petak', 'Subota', 'Nedelja', 'Ponedeljak', 'Utorak'].slice(0, nights + 1);
@@ -197,12 +198,21 @@ export function buildItinerary(selected: Experience[], nights: number, pace: Pac
     title: exp.name,
     description: exp.shortDescription,
     experienceId: exp.id,
+    kind: 'usluga',
+  });
+
+  const logisticsItem = (time: string, title: string, icon: string, description?: string): ItineraryItem => ({
+    time,
+    title,
+    description,
+    kind: 'logistika',
+    icon,
   });
 
   const days: ItineraryDay[] = [];
 
   // Dan dolaska
-  const arrivalItems: ItineraryItem[] = [{ time: '17:00', title: 'Dolazak i prijava' }];
+  const arrivalItems: ItineraryItem[] = [logisticsItem('17:00', 'Dolazak i prijava', 'DoorOpen')];
   const welcomeExp = takeByPredicate((e) => e.id === 'dekoracija-sobe-cvece');
   if (welcomeExp) arrivalItems.push(toItem('18:00', welcomeExp));
   const dinnerExp = takeByPredicate((e) => DINNER_IDS.has(e.id));
@@ -222,7 +232,7 @@ export function buildItinerary(selected: Experience[], nights: number, pace: Pac
       if (exp) items.push(toItem(slotTimes[slot], exp));
     }
     if (items.length === 0) {
-      items.push({ time: '—', title: 'Slobodan dan', description: 'Tempo i sadržaj ovog dana birate sami.' });
+      items.push(logisticsItem('—', 'Slobodan dan', 'Coffee', 'Tempo i sadržaj ovog dana birate sami.'));
     }
     days.push({ dayLabel: dayNames[day], items });
   }
@@ -231,7 +241,7 @@ export function buildItinerary(selected: Experience[], nights: number, pace: Pac
   const lastActivity = takeByPredicate((e) => e.category === 'priroda' || e.category === 'kultura') ?? takeAny();
   const departureItems: ItineraryItem[] = [];
   if (lastActivity) departureItems.push(toItem('10:00', lastActivity));
-  departureItems.push({ time: '13:00', title: 'Kasni checkout i povratak' });
+  departureItems.push(logisticsItem('13:00', 'Kasni checkout i povratak', 'LogOut'));
   days.push({ dayLabel: dayNames[nights] ?? `Dan ${nights + 1}`, items: departureItems });
 
   // Preostala iskustva koja nisu stigla u raspored dodajemo na prvi pun dan (ili dan dolaska ako nema punih dana)
@@ -267,6 +277,40 @@ function planReason(tier: PlanTier, answers: ConfiguratorAnswers, selected: Expe
   }.`;
 }
 
+/**
+ * Uključeno/nije uključeno/dodatno se izvode iz stvarnih PartnerOffer podataka
+ * svakog izabranog iskustva — nikad iz uopštenih rečenica.
+ */
+function describeInclusionsAndExclusions(selected: Experience[], accommodationName: string, nights: number) {
+  const included: string[] = [`${nights} noćenja u smeštaju „${accommodationName}"`];
+  const excluded: string[] = [...DEFAULT_EXCLUDED];
+  const addOns: string[] = [];
+  const pendingConfirmation: string[] = [];
+
+  for (const exp of selected) {
+    const offer = getPartnerOfferById(exp.offerId);
+    const partner = getPartnerById(exp.partnerId);
+    const partnerLabel = partner ? ` (${partner.name})` : '';
+    included.push(`${exp.name}${partnerLabel}`);
+    if (offer) {
+      for (const item of offer.exclusions) {
+        const label = `${item.label}${item.detail ? ` — ${item.detail}` : ''}`;
+        if (!excluded.includes(label)) excluded.push(label);
+      }
+      for (const addOn of offer.addOns) {
+        const label = `${addOn.name} — ${addOn.priceLabel}`;
+        if (!addOns.includes(label)) addOns.push(label);
+      }
+      if (offer.status === 'pending_confirmation' || offer.status === 'available_on_request') {
+        pendingConfirmation.push(`${exp.name} — cena i termin se potvrđuju pre prihvatanja plana`);
+      }
+    }
+  }
+
+  included.push('Koordinacija celog rasporeda od strane VikArt tima');
+  return { included, excluded, addOns, pendingConfirmation };
+}
+
 function buildPlan(tier: PlanTier, answers: ConfiguratorAnswers): GeneratedPlan {
   const groupSize = answers.groupSize || 2;
   const nights = answers.nights || 2;
@@ -276,19 +320,13 @@ function buildPlan(tier: PlanTier, answers: ConfiguratorAnswers): GeneratedPlan 
   const count = Math.min(PACE_COUNTS[pace][tier], candidates.length);
   const selected = candidates.slice(0, count);
 
-  const accommodation = getAccommodationById(pickAccommodationId(tier, groupSize)) ?? accommodations[0];
+  const accommodation = getPartnerById(pickAccommodationId(tier, groupSize)) ?? partners.find((p) => p.categories.includes('smestaj'))!;
   const experiencesCost = selected.reduce((sum, exp) => sum + experienceCost(exp, groupSize), 0);
   const accommodationCostValue = computeAccommodationCost(tier, answers, experiencesCost);
   const totalPrice = accommodationCostValue + experiencesCost;
 
   const days = buildItinerary(selected, nights, pace);
-
-  const included = [
-    `${nights} noćenja u smeštaju „${accommodation.name}"`,
-    ...selected.map((exp) => exp.name),
-    'Koordinacija celog rasporeda od strane VikArt tima',
-  ];
-  const excluded = [...DEFAULT_EXCLUDED];
+  const { included, excluded, addOns, pendingConfirmation } = describeInclusionsAndExclusions(selected, accommodation.name, nights);
 
   return {
     id: `${tier}-${Date.now()}`,
@@ -304,6 +342,8 @@ function buildPlan(tier: PlanTier, answers: ConfiguratorAnswers): GeneratedPlan 
     days,
     included,
     excluded,
+    addOns,
+    pendingConfirmation,
     availability: planAvailability(selected),
     badWeatherAlternative:
       'Ukoliko vreme ne bude pogodno za spoljne aktivnosti, predlažemo zamenu za wellness termin, degustaciju ili obilazak Stopića pećine — sve u indoor okruženju.',
@@ -348,6 +388,7 @@ function recomputePlan(plan: GeneratedPlan, newExperiences: Experience[], answer
   const accommodationCost = computeAccommodationCost(plan.tier, answers, experiencesCost);
   const totalPrice = accommodationCost + experiencesCost;
   const pace: PaceKey = answers.pace ?? 'uravnotezeno';
+  const { included, excluded, addOns, pendingConfirmation } = describeInclusionsAndExclusions(newExperiences, plan.accommodation.name, plan.nights);
   return {
     ...plan,
     experiences: newExperiences,
@@ -355,11 +396,10 @@ function recomputePlan(plan: GeneratedPlan, newExperiences: Experience[], answer
     pricePerPerson: Math.round(totalPrice / groupSize),
     days: buildItinerary(newExperiences, plan.nights, pace),
     availability: planAvailability(newExperiences),
-    included: [
-      `${plan.nights} noćenja u smeštaju „${plan.accommodation.name}"`,
-      ...newExperiences.map((exp) => exp.name),
-      'Koordinacija celog rasporeda od strane VikArt tima',
-    ],
+    included,
+    excluded,
+    addOns,
+    pendingConfirmation,
   };
 }
 

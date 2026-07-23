@@ -9,6 +9,9 @@ import type {
   ExperienceCategory,
   AvailabilityLevel,
   IntensityLevel,
+  OfferStatus,
+  PartnerCategory,
+  DietaryOption,
 } from '@/types';
 
 export const occasionLabels: Record<OccasionKey, string> = {
@@ -112,3 +115,44 @@ export const intensityLabels: Record<IntensityLevel, string> = {
   umereno: 'Umereno',
   intenzivno: 'Intenzivno',
 };
+
+/** Tačan, propisan prevod statusa ponude partnera — koristi se svuda gde se status prikazuje. */
+export const offerStatusLabels: Record<OfferStatus, string> = {
+  demo: 'Demonstracioni prikaz',
+  available_on_request: 'Dostupno na upit',
+  pending_confirmation: 'Provera dostupnosti',
+  confirmed: 'Potvrđeno',
+  unavailable: 'Trenutno nedostupno',
+};
+
+export const partnerCategoryLabels: Record<PartnerCategory, string> = {
+  smestaj: 'Smeštaj',
+  restoran: 'Restoran',
+  'spa-i-wellness': 'Spa i wellness',
+  masaza: 'Masaža',
+  'voznja-kvadovima': 'Vožnja kvadovima',
+  'e-bike': 'E-bike',
+  jahanje: 'Jahanje',
+  fotografisanje: 'Fotografisanje',
+  'dekoracija-i-cvece': 'Dekoracija i cveće',
+  'lokalno-domacinstvo': 'Lokalno domaćinstvo',
+  'izleti-i-turisticki-obilasci': 'Izleti i turistički obilasci',
+  prevoz: 'Prevoz',
+  'muzika-i-vecernji-program': 'Muzika i večernji program',
+  'ostala-iskustva': 'Ostala iskustva',
+};
+
+export const dietaryOptionLabels: Record<DietaryOption, string> = {
+  vegetarijanski: 'Vegetarijanski',
+  veganski: 'Veganski',
+  'gluten-free': 'Bez glutena',
+  'bez-restrikcija': 'Bez restrikcija',
+};
+
+/**
+ * Tačan tekst koji se prikazuje uz svaku referencu na partnera — partner je uvek
+ * predložena opcija dok VikArt ne potvrdi raspoloživost, nikad prikazan kao već
+ * potvrđen.
+ */
+export const PARTNER_AVAILABILITY_DISCLAIMER =
+  'Ovaj partner je predložena opcija. VikArt će proveriti raspoloživost pre potvrde plana. Ako nije dostupan, dobićete jasno označenu zamenu iste ili više kategorije, bez promene cene, ili ćemo zatražiti vašu saglasnost ako se cena menja.';

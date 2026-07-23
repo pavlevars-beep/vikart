@@ -9,6 +9,8 @@ export const storageKeys = {
   lastPlans: `${PREFIX}last-plans`,
   inquiries: `${PREFIX}inquiries`,
   partnerInquiries: `${PREFIX}partner-inquiries`,
+  partnerApplicationDraft: `${PREFIX}partner-application-draft`,
+  partnerApplications: `${PREFIX}partner-applications`,
 } as const;
 
 export function readStorage<T>(key: string): T | null {
