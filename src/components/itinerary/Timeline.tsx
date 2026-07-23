@@ -1,8 +1,8 @@
 import { Clock, DoorOpen, LogOut, Coffee } from 'lucide-react';
 import type { ItineraryDay } from '@/types';
-import { getExperienceById } from '@/data/experiences';
-import { getPartnerById } from '@/data/partners';
-import { getPartnerOfferById } from '@/data/partnerOffers';
+import { getExperienceById } from '@/services/experiencesStore';
+import { getPartnerById } from '@/services/partnersStore';
+import { getPartnerOfferById } from '@/services/partnerOffersStore';
 import PartnerMiniCard from '@/components/partners/PartnerMiniCard';
 import ExperienceAccordion from '@/components/partners/ExperienceAccordion';
 
@@ -12,7 +12,7 @@ const LOGISTICS_ICONS: Record<string, typeof Clock> = {
   Coffee,
 };
 
-export default function Timeline({ days }: { days: ItineraryDay[] }) {
+export default function Timeline({ days, groupSize }: { days: ItineraryDay[]; groupSize: number }) {
   return (
     <div className="space-y-8">
       {days.map((day) => (
@@ -49,7 +49,7 @@ export default function Timeline({ days }: { days: ItineraryDay[] }) {
                     {item.kind === 'usluga' && partner && (
                       <div className="mt-2.5 space-y-2">
                         <PartnerMiniCard partner={partner} />
-                        {offer && <ExperienceAccordion offer={offer} />}
+                        {offer && <ExperienceAccordion offer={offer} groupSize={groupSize} />}
                       </div>
                     )}
                   </div>

@@ -1,7 +1,12 @@
 import { useState, type FormEvent } from 'react';
 import { CheckCircle2, AlertCircle } from 'lucide-react';
-import type { Inquiry, PreferredContact } from '@/types';
+import type { Inquiry, PreferredContact, GeneratedPlan } from '@/types';
 import { appendToList, storageKeys } from '@/utils/storage';
+import { saveBooking, nextReferenceCode } from '@/services/bookingsStore';
+import { buildBookingSnapshot } from '@/utils/bookingSnapshot';
+import { getSettings } from '@/services/settingsStore';
+import { makeActivity } from '@/services/activityLog';
+import PaymentPolicyNotice from '@/components/booking/PaymentPolicyNotice';
 
 const contactOptions: { key: PreferredContact; label: string }[] = [
   { key: 'telefon', label: 'Telefon' },
@@ -11,22 +16,10 @@ const contactOptions: { key: PreferredContact; label: string }[] = [
 ];
 
 interface PlanReviewFormProps {
-  planTitle: string;
-  totalPrice: number;
-  nights: number;
-  groupSize: number;
-  accommodationName: string;
-  experienceNames: string[];
+  plan: GeneratedPlan;
 }
 
-export default function PlanReviewForm({
-  planTitle,
-  totalPrice,
-  nights,
-  groupSize,
-  accommodationName,
-  experienceNames,
-}: PlanReviewFormProps) {
+export default function PlanReviewForm({ plan }: PlanReviewFormProps) {
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
@@ -40,6 +33,7 @@ export default function PlanReviewForm({
   const [consent, setConsent] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
+  const [referenceCode, setReferenceCode] = useState('');
   const [submitError, setSubmitError] = useState(false);
   const [sending, setSending] = useState(false);
 
@@ -58,18 +52,54 @@ export default function PlanReviewForm({
     event.preventDefault();
     if (!validate()) return;
 
+    const dietary = { allergies, vegetarian, vegan, religiousOrOther, additionalNote: dietaryNote };
+
     const inquiry: Inquiry = {
       fullName,
       phone,
       email,
       preferredContact,
-      note: note ? `[${planTitle}] ${note}` : `[${planTitle}]`,
+      note: note ? `[${plan.title}] ${note}` : `[${plan.title}]`,
       consent,
-      dietary: { allergies, vegetarian, vegan, religiousOrOther, additionalNote: dietaryNote },
+      dietary,
       createdAt: new Date().toISOString(),
     };
-
     appendToList<Inquiry>(storageKeys.inquiries, inquiry);
+
+    // Uvek kreiraj rezervaciju sa snapshot-om — vidljivo u /admin/rezervacije bez obzira na Telegram/API dostupnost.
+    const settings = getSettings();
+    const depositAmount = Math.round((plan.totalPrice * settings.depositPercent) / 100);
+    const reference = nextReferenceCode();
+    setReferenceCode(reference);
+    saveBooking({
+      id: `booking-${Date.now().toString(36)}`,
+      referenceCode: reference,
+      createdAt: new Date().toISOString(),
+      fullName,
+      phone,
+      email,
+      groupSize: plan.groupSize,
+      packageId: plan.id,
+      packageName: plan.title,
+      experienceNames: plan.experiences.map((exp) => exp.name),
+      totalPrice: plan.totalPrice,
+      payment: {
+        totalAmount: plan.totalPrice,
+        currency: settings.currency,
+        depositPercent: settings.depositPercent,
+        depositAmount,
+        remainingAmount: plan.totalPrice - depositAmount,
+        remainingDueLabel: settings.remainingDueLabel,
+        paymentStatus: 'nije_naplaceno',
+      },
+      partnerCheckStatus: 'nije_pokrenuto',
+      status: 'nov_upit',
+      notes: [],
+      activity: [makeActivity('created', 'Zahtev poslat sa stranice plana.')],
+      snapshot: buildBookingSnapshot(plan),
+      dietary,
+    });
+
     setSubmitError(false);
     setSending(true);
 
@@ -83,13 +113,13 @@ export default function PlanReviewForm({
           email,
           preferredContact,
           note,
-          dietary: { allergies, vegetarian, vegan, religiousOrOther, additionalNote: dietaryNote },
-          planTitle,
-          totalPrice,
-          nights,
-          groupSize,
-          accommodationName,
-          experienceNames,
+          dietary,
+          planTitle: plan.title,
+          totalPrice: plan.totalPrice,
+          nights: plan.nights,
+          groupSize: plan.groupSize,
+          accommodationName: plan.accommodation.name,
+          experienceNames: plan.experiences.map((exp) => exp.name),
         }),
       });
       if (res.ok) {
@@ -98,7 +128,7 @@ export default function PlanReviewForm({
         setSubmitError(true);
       }
     } catch {
-      // Nema dostupnog API-ja (lokalni razvoj bez `vercel dev` ili samostalan preview) — ponašaj se kao demo prijava.
+      // Nema dostupnog API-ja (lokalni razvoj bez `vercel dev` ili samostalan preview) — rezervacija je već sačuvana lokalno.
       setSubmitted(true);
     } finally {
       setSending(false);
@@ -113,9 +143,8 @@ export default function PlanReviewForm({
         <p className="mt-2 text-ink-soft">
           VikArt tim će proveriti raspoloživost odabranih usluga i javiti se sa konačnom cenom i potvrđenim rasporedom.
         </p>
-        <p className="mt-2 text-sm text-ink-soft">
-          Cilj nam je da standardne zahteve potvrdimo u najkraćem mogućem roku.
-        </p>
+        <p className="mt-1 text-sm text-ink-soft">Broj vašeg zahteva: <strong>{referenceCode}</strong></p>
+        <PaymentPolicyNotice totalPrice={plan.totalPrice} className="mt-5 text-left" />
       </div>
     );
   }
@@ -253,6 +282,8 @@ export default function PlanReviewForm({
         </label>
         {errors.consent && <span id="error-consent" className="-mt-2 block text-xs text-terracotta sm:col-span-2">{errors.consent}</span>}
       </div>
+
+      <PaymentPolicyNotice totalPrice={plan.totalPrice} className="mt-6" />
 
       {submitError && (
         <p role="alert" className="mt-4 flex items-start gap-2 rounded-lg bg-terracotta/10 px-4 py-3 text-sm text-terracotta">

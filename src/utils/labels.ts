@@ -12,6 +12,7 @@ import type {
   OfferStatus,
   PartnerCategory,
   DietaryOption,
+  AccommodationLocationPreferenceKey,
 } from '@/types';
 
 export const occasionLabels: Record<OccasionKey, string> = {
@@ -85,6 +86,18 @@ export const budgetMidpoints: Record<BudgetKey, number> = {
   '120000-200000': 160000,
   'vise-od-200000': 240000,
   'predlozite-vi': 90000,
+};
+
+export const locationPreferenceLabels: Record<AccommodationLocationPreferenceKey, string> = {
+  'blizu-centra': 'Blizu centra i dešavanja',
+  'mirniji-kraj': 'Mirniji kraj i više prirode',
+  'najbolja-opcija': 'Najbolja opcija za moj plan',
+};
+
+export const locationPreferenceDescriptions: Record<AccommodationLocationPreferenceKey, string> = {
+  'blizu-centra': 'Za goste kojima su važni restorani, šetnja, kafići i sadržaji u blizini.',
+  'mirniji-kraj': 'Za odmor, privatnost, romantičan vikend i pogled.',
+  'najbolja-opcija': 'VikArt predlaže lokaciju na osnovu povoda, broja gostiju i izabranih aktivnosti.',
 };
 
 export const paceLabels: Record<PaceKey, string> = {

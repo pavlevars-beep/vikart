@@ -11,6 +11,8 @@ import StickyPriceBar from '@/components/itinerary/StickyPriceBar';
 import PlanReviewForm from '@/components/forms/PlanReviewForm';
 import DemoTag from '@/components/ui/DemoTag';
 import PartnerMiniCard from '@/components/partners/PartnerMiniCard';
+import PaymentPolicyNotice from '@/components/booking/PaymentPolicyNotice';
+import InclusionList from '@/components/partners/InclusionList';
 
 export default function PlanDetail() {
   const { planId, slug } = useParams<{ planId?: string; slug?: string }>();
@@ -64,6 +66,7 @@ export default function PlanDetail() {
         </div>
         <p className="text-sm text-ink-soft">{formatPrice(plan.pricePerPerson)} po osobi</p>
         <DemoTag className="mt-2" />
+        <PaymentPolicyNotice totalPrice={plan.totalPrice} className="mt-5" />
 
         <section className="mt-8">
           <h2 className="font-serif text-xl text-ink">Smeštaj</h2>
@@ -79,7 +82,7 @@ export default function PlanDetail() {
             eksplicitno navedeni) organizujete samostalno.
           </p>
           <div className="mt-5">
-            <Timeline days={plan.days} />
+            <Timeline days={plan.days} groupSize={plan.groupSize} />
           </div>
         </section>
 
@@ -93,51 +96,36 @@ export default function PlanDetail() {
         <section className="mt-10 grid gap-6 sm:grid-cols-2">
           <div>
             <h2 className="font-serif text-xl text-ink">Uključeno u cenu</h2>
-            <ul className="mt-3 list-inside list-disc space-y-1 text-sm text-ink-soft">
-              {plan.included.map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ul>
+            <div className="mt-3">
+              <InclusionList items={plan.included} variant="included" />
+            </div>
           </div>
           <div>
             <h2 className="font-serif text-xl text-ink">Nije uključeno</h2>
-            <ul className="mt-3 list-inside list-disc space-y-1 text-sm text-ink-soft">
-              {plan.excluded.map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ul>
+            <div className="mt-3">
+              <InclusionList items={plan.excluded} variant="excluded" />
+            </div>
           </div>
           {plan.addOns.length > 0 && (
             <div>
               <h2 className="font-serif text-xl text-ink">Dostupni dodaci</h2>
-              <ul className="mt-3 list-inside list-disc space-y-1 text-sm text-ink-soft">
-                {plan.addOns.map((item) => (
-                  <li key={item}>{item}</li>
-                ))}
-              </ul>
+              <div className="mt-3">
+                <InclusionList items={plan.addOns} variant="addon" />
+              </div>
             </div>
           )}
           {plan.pendingConfirmation.length > 0 && (
             <div>
               <h2 className="font-serif text-xl text-ink">Čeka proveru dostupnosti</h2>
-              <ul className="mt-3 list-inside list-disc space-y-1 text-sm text-ink-soft">
-                {plan.pendingConfirmation.map((item) => (
-                  <li key={item}>{item}</li>
-                ))}
-              </ul>
+              <div className="mt-3">
+                <InclusionList items={plan.pendingConfirmation} variant="pending" />
+              </div>
             </div>
           )}
         </section>
 
         <div ref={formRef} className="mt-12 scroll-mt-20">
-          <PlanReviewForm
-            planTitle={plan.title}
-            totalPrice={plan.totalPrice}
-            nights={plan.nights}
-            groupSize={plan.groupSize}
-            accommodationName={plan.accommodation.name}
-            experienceNames={plan.experiences.map((exp) => exp.name)}
-          />
+          <PlanReviewForm plan={plan} />
         </div>
       </div>
 

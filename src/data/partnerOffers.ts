@@ -1,11 +1,21 @@
-import type { CancellationPolicy, PartnerOffer, SubstitutionPolicy } from '@/types';
+import type {
+  CancellationPolicy,
+  OccasionKey,
+  PartnerOffer,
+  PartnerOfferPlacement,
+  PricingModel,
+  SubstitutionPolicy,
+} from '@/types';
+import { emptyPlacement } from '@/types';
 
 /**
  * Detaljne ponude partnera — jedna po iskustvu (`Experience.offerId`). Ovde žive
  * precizni podaci o uključenom/isključenom, rasporedu, hrani, bezbednosti,
- * otkazivanju i zamenama koje UI (akordeon "Detalji iskustva", liste
- * uključeno/isključeno/dodatno) čita direktno — ništa od ovoga se ne hardkoduje
- * u komponentama.
+ * otkazivanju, zamenama i CENI koje UI (akordeon "Detalji iskustva", liste
+ * uključeno/isključeno/dodatno, price breakdown) čita direktno — ništa od ovoga
+ * se ne hardkoduje u komponentama. Ovo je i entitet koji se uređuje iz
+ * `/admin/partneri/:id` internog onboarding editora — jedan partner može imati
+ * više PartnerOffer zapisa.
  */
 
 function substitution(overrides: Partial<SubstitutionPolicy> = {}): SubstitutionPolicy {
@@ -26,11 +36,27 @@ function cancellation(hours: number, latePct = 50): CancellationPolicy {
   };
 }
 
+function pricing(unit: PricingModel['unit'], basePrice: number, overrides: Partial<PricingModel> = {}): PricingModel {
+  return { unit, currency: 'RSD', basePrice, ...overrides };
+}
+
+function placement(overrides: Partial<PartnerOfferPlacement> = {}, occasions: OccasionKey[] = []): PartnerOfferPlacement {
+  return { ...emptyPlacement(), occasions, ...overrides };
+}
+
 export const partnerOffers: PartnerOffer[] = [
   {
     id: 'offer-masaza-za-dvoje',
     partnerId: 'mountain-spa-zlatibor',
+    name: 'Masaža za dvoje, 60 min',
+    shortDescription: 'Opuštajuća masaža u istoj prostoriji, uz mirise i tihu muziku.',
+    experienceId: 'masaza-za-dvoje',
     status: 'demo',
+    lifecycleStatus: 'active',
+    pricingModel: pricing('po_paru', 6500, {
+      addOns: [{ id: 'addon-aroma-ulja', name: 'Aroma ulja', priceValue: 1500, unit: 'po_paru' }],
+    }),
+    placement: placement({ packageIds: ['romanticni-mir'], suitableForRomanticWeekend: true }, ['romanticni-vikend', 'godisnjica-rodjendan']),
     narrative:
       'Dolazite na recepciju Mountain Spa desetak minuta pre termina, popunite kratak upitnik o zdravstvenim ograničenjima i presvučete se. Masaža za dvoje traje 60 minuta u istoj prostoriji, uz tihu muziku. Posle masaže imate kratak odmor uz čaj pre nego što napustite centar.',
     primaryVariant: { name: 'Klasična masaža za dvoje, 60 min', description: 'Opuštajuća masaža u istoj prostoriji, u istom terminu.', priceImpact: 'u ceni iskustva' },
@@ -64,7 +90,15 @@ export const partnerOffers: PartnerOffer[] = [
   {
     id: 'offer-privatni-wellness-termin',
     partnerId: 'mountain-spa-zlatibor',
+    name: 'Privatni wellness termin, 90 min',
+    shortDescription: 'Zaseban termin u sauni, jacuzziju ili wellness zoni, samo za vašu grupu.',
+    experienceId: 'privatni-wellness-termin',
     status: 'demo',
+    lifecycleStatus: 'active',
+    pricingModel: pricing('po_paru', 9000, {
+      addOns: [{ id: 'addon-produzenje', name: 'Produženje termina za 30 min', priceValue: 3000, unit: 'po_grupi' }],
+    }),
+    placement: placement({ packageIds: ['godisnjica-za-pamcenje', 'zlatibor-u-pokretu'], suitableForRomanticWeekend: true }, ['romanticni-vikend', 'godisnjica-rodjendan']),
     narrative:
       'Termin je privatno zakupljen samo za vašu grupu — sauna, jacuzzi i prostor za odmor su vam na raspolaganju 90 minuta, bez drugih gostiju u prostoru.',
     primaryVariant: { name: 'Privatni termin, 90 min', description: 'Sauna, jacuzzi i prostor za odmor, isključivo za vašu grupu.', priceImpact: 'u ceni iskustva' },
@@ -99,7 +133,15 @@ export const partnerOffers: PartnerOffer[] = [
   {
     id: 'offer-romanticna-vecera',
     partnerId: 'konoba-ovcarnik',
+    name: 'Romantična večera za dvoje',
+    shortDescription: 'Rezervisan sto, birani meni i mirna atmosfera za vas dvoje.',
+    experienceId: 'romanticna-vecera',
     status: 'demo',
+    lifecycleStatus: 'active',
+    pricingModel: pricing('po_paru', 7500, {
+      addOns: [{ id: 'addon-vino-boca', name: 'Boca vina umesto čaše', priceValue: 3200, unit: 'fiksna' }],
+    }),
+    placement: placement({ packageIds: ['romanticni-mir', 'godisnjica-za-pamcenje'], suitableForRomanticWeekend: true }, ['romanticni-vikend', 'godisnjica-rodjendan']),
     narrative:
       'Sto za vas dvoje je rezervisan unapred, u strani sale, van glavne gužve. Večera ima tri sledovanja i traje otprilike dva sata, bez žurbe.',
     primaryVariant: { name: 'Večera za dvoje, 3 sledovanja', description: 'Predjelo, glavno jelo i dezert, po izboru sa menija.', priceImpact: 'u ceni iskustva' },
@@ -143,7 +185,18 @@ export const partnerOffers: PartnerOffer[] = [
   {
     id: 'offer-dekoracija-sobe-cvece',
     partnerId: 'cvetni-atelje-zlatibor',
+    name: 'Cveće, sveće i welcome paket',
+    shortDescription: 'Soba spremna pre vašeg dolaska — cveće, sveće i mali welcome paket.',
+    experienceId: 'dekoracija-sobe-cvece',
     status: 'demo',
+    lifecycleStatus: 'active',
+    pricingModel: pricing('po_paru', 4500, {
+      addOns: [
+        { id: 'addon-vino', name: 'Boca vina', priceValue: 2500, unit: 'fiksna' },
+        { id: 'addon-baloni', name: 'Balon dekoracija', priceValue: 3000, unit: 'fiksna' },
+      ],
+    }),
+    placement: placement({ packageIds: ['romanticni-mir', 'godisnjica-za-pamcenje'], suitableForRomanticWeekend: true }, ['romanticni-vikend', 'godisnjica-rodjendan']),
     narrative:
       'Cvetni Atelje priprema sobu pre vašeg dolaska, u dogovoru sa recepcijom smeštaja — cveće, sveće i mali welcome paket vas dočekuju već pri ulasku.',
     primaryVariant: { name: 'Cveće, sveće i welcome paket', description: 'Buket cveća, dekorativne sveće i mali paket sa 2 lokalna slatkiša i sokom.', priceImpact: 'u ceni iskustva' },
@@ -176,7 +229,15 @@ export const partnerOffers: PartnerOffer[] = [
   {
     id: 'offer-fotografisanje-para',
     partnerId: 'jovan-lens',
+    name: 'Fotosesija za par ili društvo, 60 min',
+    shortDescription: 'Kratka fotosesija na jednoj od najlepših tačaka Zlatibora.',
+    experienceId: 'fotografisanje-para',
     status: 'demo',
+    lifecycleStatus: 'active',
+    pricingModel: pricing('po_grupi', 12000, {
+      addOns: [{ id: 'addon-foto-knjiga', name: 'Štampana foto knjiga (20 strana)', priceValue: 4500, unit: 'fiksna' }],
+    }),
+    placement: placement({ packageIds: ['godisnjica-za-pamcenje'], suitableForRomanticWeekend: true }, ['godisnjica-rodjendan', 'romanticni-vikend']),
     narrative:
       'Jovan vas dočekuje na dogovorenoj panoramskoj lokaciji i prati 60 minuta — bira ugao i vreme prema svetlu tog dana, ne po fiksnom scenariju. Obrađene fotografije stižu u roku od 5 radnih dana.',
     primaryVariant: { name: 'Fotosesija, 60 min', description: '60 minuta fotografisanja na jednoj panoramskoj lokaciji po izboru.', priceImpact: 'u ceni iskustva' },
@@ -204,7 +265,15 @@ export const partnerOffers: PartnerOffer[] = [
   {
     id: 'offer-degustacija-domacih-specijaliteta',
     partnerId: 'domacinstvo-sirogojno',
+    name: 'Degustacija domaćih specijaliteta, 90 min',
+    shortDescription: 'Sir, kajmak, pršuta i rakija iz domaćinstava u okolini.',
+    experienceId: 'degustacija-domacih-specijaliteta',
     status: 'demo',
+    lifecycleStatus: 'active',
+    pricingModel: pricing('po_osobi', 3200, {
+      groupDiscounts: [{ id: 'gd-degustacija', minGroupSize: 8, discountType: 'procenat', discountValue: 8, label: 'Popust za grupu od 8+ osoba (8%)' }],
+    }),
+    placement: placement({ suitableForFamily: true }, ['beg-od-svakodnevice', 'nesto-novo']),
     narrative:
       'Domaćin vas dočekuje na imanju i kratko priča o proizvodnji, a zatim sledi degustacija četiri domaća proizvoda uz čašicu rakije.',
     primaryVariant: { name: 'Degustacija, 90 min', description: 'Sir, kajmak, pršuta i rakija iz domaćinstva.', priceImpact: 'u ceni iskustva' },
@@ -242,7 +311,16 @@ export const partnerOffers: PartnerOffer[] = [
   {
     id: 'offer-rostilj-domaca-kuhinja',
     partnerId: 'konoba-ovcarnik',
+    name: 'Ručak sa roštiljem za grupu',
+    shortDescription: 'Obilan ručak na otvorenom, u prijatnom domaćem ambijentu.',
+    experienceId: 'rostilj-domaca-kuhinja',
     status: 'demo',
+    lifecycleStatus: 'active',
+    pricingModel: pricing('po_osobi', 2800, {
+      addOns: [{ id: 'addon-vino-domace', name: 'Domaće vino, boca', priceValue: 2800, unit: 'fiksna' }],
+      groupDiscounts: [{ id: 'gd-rostilj', minGroupSize: 10, discountType: 'procenat', discountValue: 5, label: 'Popust za grupu od 10+ osoba (5%)' }],
+    }),
+    placement: placement({ packageIds: ['zlatibor-u-pokretu'], suitableForFamily: true, suitableForLargeGroup: true }, ['vikend-sa-ekipom', 'beg-od-svakodnevice']),
     narrative:
       'Ručak se servira na otvorenom ili u natkrivenoj bašti, u zavisnosti od vremena — obilna roštilj plata sa tradicionalnim prilozima za celu grupu.',
     primaryVariant: { name: 'Ručak sa roštiljem', description: 'Predjelo i roštilj plata sa prilozima, servira se porodično za sto.', priceImpact: 'u ceni iskustva' },
@@ -278,7 +356,25 @@ export const partnerOffers: PartnerOffer[] = [
   {
     id: 'offer-voznja-kvadovima',
     partnerId: 'tornik-quad-adventures',
+    name: 'Quad tura, 2h',
+    shortDescription: 'Off-road ruta kroz okolinu Zlatibora, uz instruktora.',
+    experienceId: 'voznja-kvadovima',
     status: 'demo',
+    lifecycleStatus: 'active',
+    pricingModel: pricing('po_vozilu', 6000, {
+      capacityPerUnit: 2,
+      minVehicles: 1,
+      maxVehicles: 8,
+      tiers: [
+        { id: 'q-1-2', minUnits: 1, maxUnits: 2, pricePerUnit: 6000, label: '1–2 osobe' },
+        { id: 'q-3-4', minUnits: 3, maxUnits: 4, pricePerUnit: 5700, label: '3–4 osobe' },
+        { id: 'q-5-8', minUnits: 5, maxUnits: 8, pricePerUnit: 5300, label: '5–8 osoba' },
+      ],
+      groupDiscounts: [{ id: 'gd-quad', minGroupSize: 6, discountType: 'procenat', discountValue: 5, label: 'Popust za grupu od 6+ osoba (5%)' }],
+      privateTourSurcharge: 4000,
+      addOns: [{ id: 'addon-produzenje-3h', name: 'Produženje na 3h', priceValue: 2000, unit: 'po_osobi' }],
+    }),
+    placement: placement({ packageIds: ['vikend-za-ekipu'], suitableForSmallGroup: true, suitableForLargeGroup: true, suitableForTeamBuilding: true, isPrimary: true }, ['vikend-sa-ekipom', 'momacko-devojacko']),
     narrative:
       'Okupljate se na parkingu na Torniku 15 minuta pre polaska. Instruktor prvo drži kratak bezbednosni brifing i deli opremu, zatim krećete u konvoju — instruktor vozi na čelu, a drugi prati grupu sa zadnje strane. Ruta prolazi kroz šumske i livadske deonice u okolini Tornika, sa dva kraća zaustavljanja za odmor i fotografisanje. Na kraju sledi kratak razgovor o utiscima i vraćanje opreme.',
     primaryVariant: { name: 'Grupna tura, 2h', description: 'Off-road ruta prilagođena iskustvu grupe, uz instruktora.', priceImpact: 'u ceni iskustva' },
@@ -320,7 +416,13 @@ export const partnerOffers: PartnerOffer[] = [
   {
     id: 'offer-ebike-tura-tornik',
     partnerId: 'zlatibor-ebike-tours',
+    name: 'E-bike tura ka Torniku, 2h30min',
+    shortDescription: 'Elektro bicikl kroz prirodu, sa mogućnošću izbora lakše ili teže rute.',
+    experienceId: 'ebike-tura-tornik',
     status: 'demo',
+    lifecycleStatus: 'active',
+    pricingModel: pricing('po_osobi', 4500),
+    placement: placement({ packageIds: ['zlatibor-u-pokretu'], suitableForSmallGroup: true }, ['beg-od-svakodnevice', 'nesto-novo']),
     narrative:
       'Tura kreće iz centra Zlatibora. Vodič prvo podešava biciklove prema visini vozača i objašnjava korišćenje elektro pomoći, zatim bira lakšu ili težu varijantu rute prema dogovoru sa grupom.',
     primaryVariant: { name: 'Vođena tura, 2h30min', description: 'E-bike tura ka Torniku ili okolnim selima, izbor lakše ili teže rute.', priceImpact: 'u ceni iskustva' },
@@ -351,7 +453,13 @@ export const partnerOffers: PartnerOffer[] = [
   {
     id: 'offer-jahanje',
     partnerId: 'ranc-vranesi',
+    name: 'Vođena vožnja konjima, 60 min',
+    shortDescription: 'Vođena vožnja konjima kroz šumske staze, za početnike i iskusne jahače.',
+    experienceId: 'jahanje',
     status: 'demo',
+    lifecycleStatus: 'active',
+    pricingModel: pricing('po_osobi', 3500),
+    placement: placement({ suitableForFamily: true, suitableForSmallGroup: true }, ['beg-od-svakodnevice', 'nesto-novo']),
     narrative:
       'Instruktorka prvo upari jahača sa konjem prema iskustvu i telesnoj građi, kratko objasni osnove upravljanja, a zatim grupa kreće na stazu — od kruga u ogradi za potpune početnike do šumske staze za iskusnije jahače.',
     primaryVariant: { name: 'Vođena vožnja, 60 min', description: 'Jahanje prilagođeno nivou iskustva, uz instruktora tokom cele vožnje.', priceImpact: 'u ceni iskustva' },
@@ -384,7 +492,16 @@ export const partnerOffers: PartnerOffer[] = [
   {
     id: 'offer-streljana-i-paintball',
     partnerId: 'streljana-adrenalin',
+    name: 'Streljaštvo ili paintball, 90 min',
+    shortDescription: 'Streljaštvo sa instruktorom ili paintball meč za celu ekipu.',
+    experienceId: 'streljana-i-paintball',
     status: 'demo',
+    lifecycleStatus: 'active',
+    pricingModel: pricing('po_osobi', 3800, {
+      addOns: [{ id: 'addon-municija', name: 'Dodatni paket municije/kuglica', priceValue: 1200, unit: 'po_osobi' }],
+      groupDiscounts: [{ id: 'gd-streljana', minGroupSize: 8, discountType: 'procenat', discountValue: 5, label: 'Popust za grupu od 8+ osoba (5%)' }],
+    }),
+    placement: placement({ packageIds: ['vikend-za-ekipu'], suitableForLargeGroup: true, suitableForTeamBuilding: true }, ['vikend-sa-ekipom', 'momacko-devojacko']),
     narrative:
       'Grupa prolazi kroz obaveznu instruktažu od 15 minuta pre bilo kakvog pucanja. Nakon toga, u zavisnosti od izabrane varijante, sledi gađanje na streljani uz instruktora ili paintball meč podeljen u dva tima.',
     primaryVariant: { name: 'Streljaštvo uz instruktora', description: 'Gađanje na poligonu uz instruktora i punu zaštitnu opremu.', priceImpact: 'u ceni iskustva' },
@@ -417,7 +534,13 @@ export const partnerOffers: PartnerOffer[] = [
   {
     id: 'offer-stopica-pecina',
     partnerId: 'zlatibor-tours-guide',
+    name: 'Obilazak Stopića pećine, 60 min',
+    shortDescription: 'Prošetajte drvenom stazom kroz jednu od najlepših pećina u Srbiji.',
+    experienceId: 'stopica-pecina',
     status: 'demo',
+    lifecycleStatus: 'active',
+    pricingModel: pricing('po_osobi', 900),
+    placement: placement({ suitableForFamily: true }, ['beg-od-svakodnevice', 'nesto-novo']),
     narrative:
       'Vodič vas čeka na ulazu u pećinu i prati drvenom stazom koja prati podzemni tok reke, uz kratke zastanke kod osvetljenih siga i objašnjenje nastanka pećine.',
     primaryVariant: { name: 'Vođena tura, 60 min', description: 'Obilazak Stopića pećine drvenom stazom uz vodiča.', priceImpact: 'u ceni iskustva' },
@@ -440,7 +563,13 @@ export const partnerOffers: PartnerOffer[] = [
   {
     id: 'offer-gostiljski-vodopad',
     partnerId: 'zlatibor-tours-guide',
+    name: 'Šetnja do Gostiljskog vodopada, 90 min',
+    shortDescription: 'Lagana šetnja do kaskadnog vodopada okruženog bujnom prirodom.',
+    experienceId: 'gostiljski-vodopad',
     status: 'demo',
+    lifecycleStatus: 'active',
+    pricingModel: pricing('po_osobi', 800),
+    placement: placement({ suitableForFamily: true }, ['beg-od-svakodnevice', 'nesto-novo']),
     narrative: 'Kratka šetnja stazom kroz zeleni kanjon do Gostiljskog vodopada, uz vodičevu priču o nastanku kaskada.',
     primaryVariant: { name: 'Vođena šetnja, 90 min', description: 'Šetnja do Gostiljskog vodopada i nazad, uz vodiča.', priceImpact: 'u ceni iskustva' },
     substitution: substitution(),
@@ -462,7 +591,15 @@ export const partnerOffers: PartnerOffer[] = [
   {
     id: 'offer-ribnicko-jezero-setnja',
     partnerId: 'zlatibor-tours-guide',
+    name: 'Šetnja oko Ribničkog jezera, 2h',
+    shortDescription: 'Mirna šetnja oko jezera, uz mogućnost lakog piknika.',
+    experienceId: 'ribnicko-jezero-setnja',
     status: 'demo',
+    lifecycleStatus: 'active',
+    pricingModel: pricing('po_osobi', 1500, {
+      addOns: [{ id: 'addon-piknik', name: 'Piknik korpa', priceValue: 1500, unit: 'po_osobi' }],
+    }),
+    placement: placement({ suitableForFamily: true }, ['beg-od-svakodnevice', 'nesto-novo']),
     narrative: 'Opuštena šetnja oko Ribničkog jezera, sa mogućnošću kratkog piknika na obali za manje grupe.',
     primaryVariant: { name: 'Šetnja oko jezera, 2h', description: 'Šetnja u sopstvenom ritmu, uz mogućnost piknika.', priceImpact: 'u ceni iskustva' },
     alternativeVariant: { name: 'Šetnja s piknikom', description: 'Ista šetnja uz pripremljenu piknik korpu.', priceImpact: '+1.500 RSD po osobi' },
@@ -485,7 +622,13 @@ export const partnerOffers: PartnerOffer[] = [
   {
     id: 'offer-panoramska-setnja-vidikovci',
     partnerId: 'zlatibor-tours-guide',
+    name: 'Panoramska šetnja i vidikovci, 90 min',
+    shortDescription: 'Šetnja do najlepših vidikovaca Zlatibora, u sopstvenom ritmu.',
+    experienceId: 'panoramska-setnja-vidikovci',
     status: 'demo',
+    lifecycleStatus: 'active',
+    pricingModel: pricing('po_osobi', 1000),
+    placement: placement({ packageIds: ['romanticni-mir'], suitableForFamily: true, suitableForRomanticWeekend: true }, ['beg-od-svakodnevice', 'romanticni-vikend']),
     narrative: 'Lagana šumska šetnja do nekoliko vidikovaca sa pogledom na okolne planine, u tempu koji odgovara grupi.',
     primaryVariant: { name: 'Vođena šetnja, 90 min', description: 'Šetnja do nekoliko vidikovaca Zlatibora.', priceImpact: 'u ceni iskustva' },
     substitution: substitution(),
@@ -507,7 +650,13 @@ export const partnerOffers: PartnerOffer[] = [
   {
     id: 'offer-sirogojno-muzej',
     partnerId: 'zlatibor-tours-guide',
+    name: 'Obilazak Sirogojna, 2h',
+    shortDescription: 'Obilazak etno naselja sa tradicionalnom arhitekturom starog kraja.',
+    experienceId: 'sirogojno-muzej',
     status: 'demo',
+    lifecycleStatus: 'active',
+    pricingModel: pricing('po_osobi', 1400),
+    placement: placement({ suitableForFamily: true }, ['beg-od-svakodnevice', 'nesto-novo']),
     narrative: 'Obilazak muzeja na otvorenom u Sirogojnu uz priču o tradicionalnoj arhitekturi i načinu života starog Zlatibora.',
     primaryVariant: { name: 'Vođeni obilazak, 2h', description: 'Obilazak etno naselja Sirogojno uz vodiča.', priceImpact: 'u ceni iskustva' },
     substitution: substitution(),
@@ -529,7 +678,13 @@ export const partnerOffers: PartnerOffer[] = [
   {
     id: 'offer-autentican-obrok-domacinstvo',
     partnerId: 'domacinstvo-sirogojno',
+    name: 'Autentičan obrok u domaćinstvu, 2h',
+    shortDescription: 'Domaća trpeza u pravom seoskom domaćinstvu, uz priču domaćina.',
+    experienceId: 'autentican-obrok-domacinstvo',
     status: 'demo',
+    lifecycleStatus: 'active',
+    pricingModel: pricing('po_osobi', 3000),
+    placement: placement({ suitableForFamily: true }, ['beg-od-svakodnevice', 'nesto-novo']),
     narrative:
       'Obrok se servira u samom domaćinstvu, za zajedničkim stolom — domaćin priča o imanju dok se jelo servira u više navrata, po tradicionalnom redosledu.',
     primaryVariant: { name: 'Obrok u domaćinstvu, 2h', description: 'Domaća trpeza od predjela do glavnog jela, uz priču domaćina.', priceImpact: 'u ceni iskustva' },
@@ -566,7 +721,16 @@ export const partnerOffers: PartnerOffer[] = [
   {
     id: 'offer-vecera-uz-zivu-muziku',
     partnerId: 'zlatna-koliba',
+    name: 'Večera uz živu muziku',
+    shortDescription: 'Restoran sa živom muzikom i opuštenom atmosferom za duže veče.',
+    experienceId: 'vecera-uz-zivu-muziku',
     status: 'demo',
+    lifecycleStatus: 'active',
+    pricingModel: pricing('po_osobi', 4500, {
+      addOns: [{ id: 'addon-zestina', name: 'Flaša žestokog pića za sto', priceValue: 4000, unit: 'fiksna' }],
+      groupDiscounts: [{ id: 'gd-muzika', minGroupSize: 6, discountType: 'procenat', discountValue: 5, label: 'Popust za grupu od 6+ osoba (5%)' }],
+    }),
+    placement: placement({ packageIds: ['vikend-za-ekipu'], suitableForLargeGroup: true, suitableForSmallGroup: true }, ['vikend-sa-ekipom', 'momacko-devojacko']),
     narrative:
       'Sto je rezervisan blizu bine, u restoranu koji vikendom radi sa duom uživo od 21h. Večera ima tri sledovanja; muzika krene dok se servira glavno jelo i traje do zatvaranja kuhinje.',
     primaryVariant: { name: 'Večera uz živu muziku', description: 'Tri sledovanja i rezervisan sto blizu bine, muzika od 21h.', priceImpact: 'u ceni iskustva' },
@@ -603,7 +767,15 @@ export const partnerOffers: PartnerOffer[] = [
   {
     id: 'offer-druzenje-uz-vatru',
     partnerId: 'zlatibor-house',
+    name: 'Vatra u dvorištu, celo veče',
+    shortDescription: 'Večernje druženje uz vatru, uz piće i laganu muziku.',
+    experienceId: 'druzenje-uz-vatru',
     status: 'demo',
+    lifecycleStatus: 'active',
+    pricingModel: pricing('po_grupi', 2000, {
+      addOns: [{ id: 'addon-korpa', name: 'Korpa sa grickalicama i pićem za društvo', priceValue: 3500, unit: 'fiksna' }],
+    }),
+    placement: placement({ packageIds: ['vikend-za-ekipu'], suitableForLargeGroup: true, suitableForSmallGroup: true }, ['vikend-sa-ekipom', 'momacko-devojacko']),
     narrative:
       'U dvorištu smeštaja pripremljeno je mesto za vatru — drva su obezbeđena i vatra je založena pre vašeg dolaska. Ostatak večeri je vaš, u sopstvenom ritmu.',
     primaryVariant: { name: 'Vatra u dvorištu', description: 'Pripremljeno mesto za vatru i drva za celo veče.', priceImpact: 'u ceni iskustva' },
@@ -630,7 +802,13 @@ export const partnerOffers: PartnerOffer[] = [
   {
     id: 'offer-tajno-iznenadjenje-prosidba',
     partnerId: 'cvetni-atelje-zlatibor',
+    name: 'Scenario iznenađenja ili prosidbe',
+    shortDescription: 'Osmišljavamo scenario iznenađenja prema vašoj zamisli.',
+    experienceId: 'tajno-iznenadjenje-prosidba',
     status: 'demo',
+    lifecycleStatus: 'active',
+    pricingModel: pricing('po_paru', 15000),
+    placement: placement({ packageIds: ['godisnjica-za-pamcenje'], suitableForRomanticWeekend: true }, ['godisnjica-rodjendan', 'romanticni-vikend']),
     narrative:
       'Za prosidbe i veća iznenađenja VikArt tim koordiniše nekoliko partnera odjednom — atelje priprema dekoraciju i cveće na tajnoj lokaciji, restoran i fotograf se po potrebi uključuju uz usaglašen scenario. Sve detalje unapred proveravamo telefonom kako bi iznenađenje ostalo sačuvano do poslednjeg trenutka.',
     primaryVariant: { name: 'Osnovni scenario iznenađenja', description: 'Dekoracija lokacije, cveće i koordinacija sa eventualnim dodatnim partnerima (restoran, fotograf).', priceImpact: 'u ceni iskustva' },
@@ -653,7 +831,15 @@ export const partnerOffers: PartnerOffer[] = [
   {
     id: 'offer-diskretna-proslava-rodjendana',
     partnerId: 'cvetni-atelje-zlatibor',
+    name: 'Torta i dekoracija za diskretnu proslavu',
+    shortDescription: 'Torta, dekoracija i mali program — a slavljenik saznaje tek na licu mesta.',
+    experienceId: 'diskretna-proslava-rodjendana',
     status: 'demo',
+    lifecycleStatus: 'active',
+    pricingModel: pricing('po_grupi', 8000, {
+      addOns: [{ id: 'addon-muzicki-program', name: 'Dodatni muzički program', priceValue: 10000, unit: 'fiksna' }],
+    }),
+    placement: placement({ suitableForFamily: true, suitableForSmallGroup: true }, ['godisnjica-rodjendan']),
     narrative:
       'Torta, dekoracija i kratak program se pripremaju bez znanja slavljenika — VikArt tim usaglašava tačno vreme iznošenja torte sa ostatkom društva.',
     primaryVariant: { name: 'Torta i dekoracija', description: 'Torta po izboru, dekoracija prostora i usklađen trenutak iznenađenja.', priceImpact: 'u ceni iskustva' },

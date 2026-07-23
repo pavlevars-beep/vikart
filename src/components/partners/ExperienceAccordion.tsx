@@ -1,8 +1,10 @@
-import { MapPin, Clock, ShieldAlert, CloudRain, Phone, Ban } from 'lucide-react';
+import { MapPin, Clock, ShieldAlert, CloudRain, Phone, Ban, Wallet, ListChecks } from 'lucide-react';
 import type { PartnerOffer } from '@/types';
 import { dietaryOptionLabels, PARTNER_AVAILABILITY_DISCLAIMER } from '@/utils/labels';
+import PriceBreakdownCard from './PriceBreakdownCard';
+import InclusionList from './InclusionList';
 
-export default function ExperienceAccordion({ offer }: { offer: PartnerOffer }) {
+export default function ExperienceAccordion({ offer, groupSize }: { offer: PartnerOffer; groupSize: number }) {
   return (
     <details className="group rounded-xl2 border border-ink/8 bg-warm-white">
       <summary className="cursor-pointer select-none list-none px-4 py-3 text-sm font-semibold text-forest marker:content-none">
@@ -10,6 +12,24 @@ export default function ExperienceAccordion({ offer }: { offer: PartnerOffer }) 
       </summary>
       <div className="space-y-5 border-t border-ink/8 px-4 py-4 text-sm text-ink-soft">
         <p>{offer.narrative}</p>
+
+        <div>
+          <p className="mb-1.5 inline-flex items-center gap-1.5 font-semibold text-ink">
+            <Wallet size={15} aria-hidden="true" /> Cena
+          </p>
+          <PriceBreakdownCard pricingModel={offer.pricingModel} groupSize={groupSize} />
+        </div>
+
+        <div>
+          <p className="mb-1.5 inline-flex items-center gap-1.5 font-semibold text-ink">
+            <ListChecks size={15} aria-hidden="true" /> Uključeno, isključeno i doplate
+          </p>
+          <div className="space-y-2">
+            <InclusionList items={offer.inclusions.map((i) => (i.detail ? `${i.label} — ${i.detail}` : i.label))} variant="included" />
+            <InclusionList items={offer.exclusions.map((i) => (i.detail ? `${i.label} — ${i.detail}` : i.label))} variant="excluded" />
+            <InclusionList items={offer.addOns.map((a) => `${a.name} — ${a.priceLabel}`)} variant="addon" />
+          </div>
+        </div>
 
         <div>
           <p className="mb-1.5 inline-flex items-center gap-1.5 font-semibold text-ink">

@@ -11,6 +11,16 @@ export const storageKeys = {
   partnerInquiries: `${PREFIX}partner-inquiries`,
   partnerApplicationDraft: `${PREFIX}partner-application-draft`,
   partnerApplications: `${PREFIX}partner-applications`,
+
+  // Repository-layer (runtime "database") keys — seeded from src/data/*.ts on first read.
+  partnersDb: `${PREFIX}db-partners`,
+  partnerOffersDb: `${PREFIX}db-partner-offers`,
+  experiencesDb: `${PREFIX}db-experiences`,
+  packagesDb: `${PREFIX}db-packages`,
+  partnerInquiriesDb: `${PREFIX}db-partner-inquiries`,
+  bookingsDb: `${PREFIX}db-bookings`,
+  settingsDb: `${PREFIX}db-settings`,
+  adminSession: `${PREFIX}admin-session`,
 } as const;
 
 export function readStorage<T>(key: string): T | null {

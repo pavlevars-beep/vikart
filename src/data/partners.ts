@@ -20,6 +20,7 @@ export const partners: Partner[] = [
     name: 'Zlatibor House',
     categories: ['smestaj'],
     status: 'demo',
+    lifecycleStatus: 'published',
     isDemo: true,
     oneLiner: 'Prostrana brvnara za društva do 8 osoba, sa velikim dnevnim boravkom i vatrom u dvorištu.',
     story:
@@ -37,6 +38,12 @@ export const partners: Partner[] = [
       { label: 'Sadržaj', value: 'Kamin, veliki dnevni boravak, mesto za vatru u dvorištu, parking za više vozila' },
       { label: 'Kuhinja', value: 'Potpuno opremljena, za samostalnu pripremu obroka' },
     ],
+    locationTags: ['near_center', 'nature'],
+    distanceFromCenterKm: 3,
+    driveTimeFromCenterMinutes: 7,
+    walkableToCenter: false,
+    parkingAvailable: true,
+    transportAvailable: true,
   },
   {
     id: 'vila-panorama',
@@ -44,6 +51,7 @@ export const partners: Partner[] = [
     name: 'Vila Panorama',
     categories: ['smestaj'],
     status: 'demo',
+    lifecycleStatus: 'published',
     isDemo: true,
     oneLiner: 'Vila na osami sa panoramskim pogledom, za parove i manja društva koja žele mir.',
     story:
@@ -61,6 +69,12 @@ export const partners: Partner[] = [
       { label: 'Sadržaj', value: 'Panoramska terasa, kamin, parking' },
       { label: 'Pogodno za', value: 'Godišnjice, prosidbe, mirniji vikend za dvoje' },
     ],
+    locationTags: ['quiet_area', 'nature'],
+    distanceFromCenterKm: 6,
+    driveTimeFromCenterMinutes: 12,
+    walkableToCenter: false,
+    parkingAvailable: true,
+    transportAvailable: false,
   },
   {
     id: 'apartman-cigota',
@@ -68,6 +82,7 @@ export const partners: Partner[] = [
     name: 'Apartmani Čigota',
     categories: ['smestaj'],
     status: 'demo',
+    lifecycleStatus: 'published',
     isDemo: true,
     oneLiner: 'Topao apartman blizu centra, za parove koji žele komfor bez nepotrebnog luksuza.',
     story:
@@ -84,6 +99,12 @@ export const partners: Partner[] = [
       { label: 'Sadržaj', value: 'Kamin, kuhinja, besplatan Wi-Fi, parking' },
       { label: 'Udaljenost od centra', value: '~5 minuta hoda' },
     ],
+    locationTags: ['central'],
+    distanceFromCenterKm: 0.4,
+    driveTimeFromCenterMinutes: 2,
+    walkableToCenter: true,
+    parkingAvailable: true,
+    transportAvailable: true,
   },
   {
     id: 'zlatna-koliba',
@@ -91,6 +112,7 @@ export const partners: Partner[] = [
     name: 'Zlatna Koliba',
     categories: ['restoran', 'muzika-i-vecernji-program'],
     status: 'demo',
+    lifecycleStatus: 'published',
     isDemo: true,
     oneLiner: 'Restoran sa živom muzikom vikendom — večera koja prirodno preraste u duže veče.',
     story:
@@ -114,6 +136,7 @@ export const partners: Partner[] = [
     name: 'Konoba Ovčarnik',
     categories: ['restoran'],
     status: 'demo',
+    lifecycleStatus: 'published',
     isDemo: true,
     oneLiner: 'Mirna konoba za rezervisan sto u strani — bez žurbe i bez glasne muzike.',
     story:
@@ -137,6 +160,7 @@ export const partners: Partner[] = [
     name: 'Mountain Spa Zlatibor',
     categories: ['spa-i-wellness', 'masaza'],
     status: 'demo',
+    lifecycleStatus: 'published',
     isDemo: true,
     oneLiner: 'Manji wellness centar sa privatnim terminima — bez čekanja i bez drugih gostiju u prostoru.',
     story:
@@ -160,6 +184,7 @@ export const partners: Partner[] = [
     name: 'Tornik Quad Adventures',
     categories: ['voznja-kvadovima'],
     status: 'demo',
+    lifecycleStatus: 'published',
     isDemo: true,
     oneLiner: 'Off-road kvad ture ka Torniku, uz instruktora i punu zaštitnu opremu.',
     story:
@@ -183,6 +208,7 @@ export const partners: Partner[] = [
     name: 'Zlatibor E-Bike Tours',
     categories: ['e-bike'],
     status: 'demo',
+    lifecycleStatus: 'published',
     isDemo: true,
     oneLiner: 'Vođene e-bike ture prilagođene kondiciji grupe, sa lakšom i težom varijantom rute.',
     story:
@@ -206,6 +232,7 @@ export const partners: Partner[] = [
     name: 'Ranč Vraneši',
     categories: ['jahanje'],
     status: 'demo',
+    lifecycleStatus: 'published',
     isDemo: true,
     oneLiner: 'Porodični ranč sa konjima navikutim na početnike, uz instruktora na svakoj vožnji.',
     story:
@@ -229,6 +256,7 @@ export const partners: Partner[] = [
     name: 'Jovan Lens — fotograf',
     categories: ['fotografisanje'],
     status: 'demo',
+    lifecycleStatus: 'published',
     isDemo: true,
     oneLiner: 'Fotograf sa deset godina iskustva u snimanju parova i društava na Zlatiboru.',
     story:
@@ -252,6 +280,7 @@ export const partners: Partner[] = [
     name: 'Cvetni Atelje Zlatibor',
     categories: ['dekoracija-i-cvece'],
     status: 'demo',
+    lifecycleStatus: 'published',
     isDemo: true,
     oneLiner: 'Cveće, dekoracija sobe i mali iznenađenja — priprema pre vašeg dolaska.',
     story:
@@ -274,6 +303,7 @@ export const partners: Partner[] = [
     name: 'Domaćinstvo Radovanović',
     categories: ['lokalno-domacinstvo'],
     status: 'demo',
+    lifecycleStatus: 'published',
     isDemo: true,
     oneLiner: 'Domaćinstvo koje i danas živi od stoke i zemlje — obrok i degustacija uz priču domaćina.',
     story:
@@ -297,6 +327,7 @@ export const partners: Partner[] = [
     name: 'Zlatibor Priroda Ture',
     categories: ['izleti-i-turisticki-obilasci'],
     status: 'demo',
+    lifecycleStatus: 'published',
     isDemo: true,
     oneLiner: 'Lokalni vodič za Stopića pećinu, Gostiljski vodopad, Sirogojno i vidikovce Zlatibora.',
     story:
@@ -328,6 +359,7 @@ export const partners: Partner[] = [
     name: 'VIK Transfer',
     categories: ['prevoz'],
     status: 'demo',
+    lifecycleStatus: 'published',
     isDemo: true,
     oneLiner: 'Lokalni transfer i prevoz između smeštaja, aktivnosti i restorana — bez čekanja na taksi.',
     story:
@@ -350,6 +382,7 @@ export const partners: Partner[] = [
     name: 'Streljana Adrenalin',
     categories: ['ostala-iskustva'],
     status: 'demo',
+    lifecycleStatus: 'published',
     isDemo: true,
     oneLiner: 'Streljaštvo uz instruktora i paintball meč prilagođen broju učesnika.',
     story:

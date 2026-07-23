@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, MapPin } from 'lucide-react';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
-import { partners } from '@/data/partners';
+import { listPartners } from '@/services/partnersStore';
 import { partnerCategoryLabels } from '@/utils/labels';
 import type { PartnerCategory } from '@/types';
 import Image from '@/components/ui/Image';
@@ -16,17 +16,19 @@ export default function PartnerDirectory() {
   const [category, setCategory] = useState<PartnerCategory | 'sve'>('sve');
   const [area, setArea] = useState('sve');
 
-  const areas = useMemo(() => Array.from(new Set(partners.map((p) => p.location.area))).sort(), []);
+  const publishedPartners = useMemo(() => listPartners().filter((p) => p.lifecycleStatus === 'published'), []);
+
+  const areas = useMemo(() => Array.from(new Set(publishedPartners.map((p) => p.location.area))).sort(), [publishedPartners]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return partners.filter((partner) => {
+    return publishedPartners.filter((partner) => {
       if (category !== 'sve' && !partner.categories.includes(category)) return false;
       if (area !== 'sve' && partner.location.area !== area) return false;
       if (q && !`${partner.name} ${partner.oneLiner}`.toLowerCase().includes(q)) return false;
       return true;
     });
-  }, [query, category, area]);
+  }, [publishedPartners, query, category, area]);
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">

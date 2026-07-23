@@ -18,6 +18,20 @@ export function formatDate(value: string | Date): string {
   return dateFormatter.format(date);
 }
 
+const dateTimeFormatter = new Intl.DateTimeFormat('sr-RS', {
+  day: 'numeric',
+  month: 'short',
+  year: 'numeric',
+  hour: '2-digit',
+  minute: '2-digit',
+});
+
+export function formatDateTime(value: string | Date): string {
+  const date = typeof value === 'string' ? new Date(value) : value;
+  if (Number.isNaN(date.getTime())) return '';
+  return dateTimeFormatter.format(date);
+}
+
 export function pluralizeNights(nights: number): string {
   if (nights === 1) return 'noćenje';
   if (nights <= 4) return 'noćenja';

@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { SlidersHorizontal } from 'lucide-react';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
-import { experiences } from '@/data/experiences';
+import { listExperiences } from '@/services/experiencesStore';
 import ExperienceCard from '@/components/cards/ExperienceCard';
 import FilterPanel from '@/components/catalog/FilterPanel';
 import MobileFilterSheet from '@/components/catalog/MobileFilterSheet';
@@ -14,7 +14,7 @@ export default function Catalog() {
   const [sheetOpen, setSheetOpen] = useState(false);
 
   const filtered = useMemo(() => {
-    return experiences.filter((exp) => {
+    return listExperiences().filter((exp) => {
       if (filters.categories.length > 0 && !filters.categories.includes(exp.category)) return false;
       if (filters.suitableFor !== 'sve' && !exp.suitableFor.includes(filters.suitableFor)) return false;
       if (filters.indoor !== 'sve' && exp.indoor !== filters.indoor && exp.indoor !== 'oba') return false;

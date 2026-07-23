@@ -17,9 +17,9 @@ import PackageCard from '@/components/cards/PackageCard';
 import FeelingCard from '@/components/cards/FeelingCard';
 import ExperienceCard from '@/components/cards/ExperienceCard';
 import PicksBanner from '@/components/catalog/PicksBanner';
-import { packages } from '@/data/packages';
+import { listPackages } from '@/services/packagesStore';
 import { feelingCards } from '@/data/feelings';
-import { experiences } from '@/data/experiences';
+import { listExperiences } from '@/services/experiencesStore';
 import { images } from '@/data/images';
 
 const steps = [
@@ -62,8 +62,9 @@ const popularExperienceIds = [
 
 export default function Home() {
   useDocumentTitle('Umetnost dobrog vikenda');
+  const allExperiences = listExperiences();
   const popularExperiences = popularExperienceIds
-    .map((id) => experiences.find((exp) => exp.id === id))
+    .map((id) => allExperiences.find((exp) => exp.id === id))
     .filter((exp): exp is NonNullable<typeof exp> => Boolean(exp));
 
   return (
@@ -159,7 +160,7 @@ export default function Home() {
             </Link>
           </div>
           <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {packages.map((pkg) => (
+            {listPackages().map((pkg) => (
               <PackageCard key={pkg.id} pkg={pkg} />
             ))}
           </div>

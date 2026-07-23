@@ -1,9 +1,9 @@
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { MapPin, Phone, Mail, Globe, Instagram, Facebook, Clock, ExternalLink } from 'lucide-react';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
-import { getPartnerBySlug, partners } from '@/data/partners';
-import { experiences } from '@/data/experiences';
-import { packages } from '@/data/packages';
+import { getPartnerBySlug, listPartners } from '@/services/partnersStore';
+import { listExperiences } from '@/services/experiencesStore';
+import { listPackages } from '@/services/packagesStore';
 import { partnerCategoryLabels } from '@/utils/labels';
 import Image from '@/components/ui/Image';
 import OfferStatusBadge from '@/components/partners/OfferStatusBadge';
@@ -11,7 +11,10 @@ import PartnerGallery from '@/components/partners/PartnerGallery';
 
 export default function PartnerDetail() {
   const { slug } = useParams<{ slug: string }>();
-  const partner = slug ? getPartnerBySlug(slug) : undefined;
+  const [searchParams] = useSearchParams();
+  const isPreview = searchParams.get('preview') === '1';
+  const found = slug ? getPartnerBySlug(slug) : undefined;
+  const partner = found && (found.lifecycleStatus === 'published' || isPreview) ? found : undefined;
 
   useDocumentTitle(partner ? partner.name : 'Partner nije pronađen');
 
@@ -27,16 +30,22 @@ export default function PartnerDetail() {
     );
   }
 
+  const experiences = listExperiences();
   const realizedExperiences = experiences.filter((exp) => exp.partnerId === partner.id);
-  const featuredPackages = packages.filter(
+  const featuredPackages = listPackages().filter(
     (pkg) => pkg.accommodationId === partner.id || pkg.experienceIds.some((id) => experiences.find((e) => e.id === id)?.partnerId === partner.id),
   );
-  const similarPartners = partners
-    .filter((p) => p.id !== partner.id && p.categories.some((c) => partner.categories.includes(c)))
+  const similarPartners = listPartners()
+    .filter((p) => p.id !== partner.id && p.lifecycleStatus === 'published' && p.categories.some((c) => partner.categories.includes(c)))
     .slice(0, 3);
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8">
+      {isPreview && partner.lifecycleStatus !== 'published' && (
+        <p className="mb-4 rounded-lg bg-gold/20 px-4 py-2 text-sm font-medium text-ink">
+          Admin pregled — ova stranica još nije javno objavljena.
+        </p>
+      )}
       <Link to="/partneri" className="text-sm font-semibold text-forest hover:underline">← Svi partneri</Link>
 
       <div className="mt-4 overflow-hidden rounded-xl2">

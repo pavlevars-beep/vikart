@@ -13,6 +13,19 @@ import PartnerForm from '@/pages/PartnerForm';
 import PartnerDirectory from '@/pages/PartnerDirectory';
 import PartnerDetail from '@/pages/PartnerDetail';
 import NotFound from '@/pages/NotFound';
+import AdminLayout from '@/components/admin/AdminLayout';
+import AdminDashboard from '@/pages/admin/AdminDashboard';
+import AdminPartnerInquiries from '@/pages/admin/AdminPartnerInquiries';
+import AdminPartnerInquiryDetail from '@/pages/admin/AdminPartnerInquiryDetail';
+import AdminPartners from '@/pages/admin/AdminPartners';
+import AdminPartnerNew from '@/pages/admin/AdminPartnerNew';
+import AdminPartnerEditor from '@/pages/admin/AdminPartnerEditor';
+import AdminBookings from '@/pages/admin/AdminBookings';
+import AdminBookingDetail from '@/pages/admin/AdminBookingDetail';
+import AdminSettings from '@/pages/admin/AdminSettings';
+import AdminOffers from '@/pages/admin/AdminOffers';
+import AdminExperiences from '@/pages/admin/AdminExperiences';
+import AdminPackages from '@/pages/admin/AdminPackages';
 
 export default function App() {
   return (
@@ -35,6 +48,20 @@ export default function App() {
           <Route path="/rezultati" element={<Results />} />
           <Route path="/plan/:planId" element={<PlanDetail />} />
           <Route path="/paketi/:slug" element={<PlanDetail />} />
+        </Route>
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<AdminDashboard />} />
+          <Route path="upiti-partnera" element={<AdminPartnerInquiries />} />
+          <Route path="upiti-partnera/:id" element={<AdminPartnerInquiryDetail />} />
+          <Route path="partneri" element={<AdminPartners />} />
+          <Route path="partneri/novi" element={<AdminPartnerNew />} />
+          <Route path="partneri/:id" element={<AdminPartnerEditor />} />
+          <Route path="ponude" element={<AdminOffers />} />
+          <Route path="iskustva" element={<AdminExperiences />} />
+          <Route path="paketi" element={<AdminPackages />} />
+          <Route path="rezervacije" element={<AdminBookings />} />
+          <Route path="rezervacije/:id" element={<AdminBookingDetail />} />
+          <Route path="podesavanja" element={<AdminSettings />} />
         </Route>
       </Routes>
     </>

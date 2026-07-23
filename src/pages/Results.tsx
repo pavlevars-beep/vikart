@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import type { ConfiguratorAnswers, Experience, GeneratedPlan } from '@/types';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { readStorage, writeStorage, storageKeys } from '@/utils/storage';
-import { removeExperience, swapExperience, addExperience } from '@/utils/planGenerator';
+import { removeExperience, swapExperience, addExperience, changeAccommodation } from '@/utils/planGenerator';
 import PlanCard from '@/components/results/PlanCard';
 
 export default function Results() {
@@ -56,6 +56,7 @@ export default function Results() {
             onRemove={(expId) => answers && updatePlan(plan.tier, (p) => removeExperience(p, expId, answers))}
             onSwap={(expId) => answers && updatePlan(plan.tier, (p) => swapExperience(p, expId, answers))}
             onAdd={(exp: Experience) => answers && updatePlan(plan.tier, (p) => addExperience(p, exp, answers))}
+            onChangeAccommodation={(partnerId) => updatePlan(plan.tier, (p) => changeAccommodation(p, partnerId))}
           />
         ))}
       </div>

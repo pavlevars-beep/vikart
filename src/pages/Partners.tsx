@@ -11,9 +11,11 @@ import {
 } from 'lucide-react';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import PartnerCard from '@/components/cards/PartnerCard';
-import { partners } from '@/data/partners';
+import { listPartners } from '@/services/partnersStore';
 
-const demoPartners = partners.slice(0, 3);
+const demoPartners = listPartners()
+  .filter((p) => p.lifecycleStatus === 'published')
+  .slice(0, 3);
 
 const benefits = [
   { icon: BadgePercent, text: 'Nema početne naknade u pilot fazi' },
@@ -103,7 +105,7 @@ export default function Partners() {
             to="/za-partnere/prijava"
             className="mt-6 inline-flex min-h-[44px] items-center justify-center rounded-full bg-gold px-6 text-sm font-semibold text-ink hover:bg-gold/90"
           >
-            Prijavi ponudu
+            Prijavi interesovanje
           </Link>
         </div>
       </section>

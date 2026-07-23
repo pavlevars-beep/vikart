@@ -10,10 +10,11 @@ import type {
   WantKey,
   FeelingKey,
   PaceKey,
+  Partner,
 } from '@/types';
-import { experiences } from '@/data/experiences';
-import { partners, getPartnerById } from '@/data/partners';
-import { getPartnerOfferById } from '@/data/partnerOffers';
+import { listExperiences } from '@/services/experiencesStore';
+import { listPartners, getPartnerById } from '@/services/partnersStore';
+import { getPartnerOfferById } from '@/services/partnerOffersStore';
 import { budgetMidpoints } from './labels';
 import { readStorage, storageKeys } from './storage';
 
@@ -120,17 +121,51 @@ function isEligible(exp: Experience, answers: ConfiguratorAnswers): boolean {
 }
 
 function rankedCandidates(answers: ConfiguratorAnswers): Experience[] {
-  return experiences
+  return listExperiences()
     .filter((exp) => isEligible(exp, answers))
     .map((exp) => ({ exp, score: scoreExperience(exp, answers) }))
     .sort((a, b) => b.score - a.score)
     .map((entry) => entry.exp);
 }
 
-function pickAccommodationId(tier: PlanTier, groupSize: number): string {
+/**
+ * Bira smeštaj poštujući eksplicitnu lokacijsku preferenciju korisnika ako postoji,
+ * a inače predlaže na osnovu povoda i osećaja koje je korisnik opisao — korisnikov
+ * izbor uvek ima prednost nad automatskom preporukom.
+ */
+function pickAccommodationId(tier: PlanTier, answers: ConfiguratorAnswers): string {
+  const groupSize = answers.groupSize || 2;
   if (groupSize > 4) return 'zlatibor-house';
+
+  const preference = answers.locationPreference ?? 'najbolja-opcija';
+  const wantsCentral =
+    preference === 'blizu-centra' ||
+    (preference === 'najbolja-opcija' && (answers.occasion === 'vikend-sa-ekipom' || answers.occasion === 'momacko-devojacko'));
+  const wantsQuiet =
+    preference === 'mirniji-kraj' ||
+    (preference === 'najbolja-opcija' &&
+      (answers.occasion === 'romanticni-vikend' || answers.occasion === 'godisnjica-rodjendan' || answers.feelings.includes('opusteno')));
+
   if (groupSize > 2) return 'vila-panorama';
+  if (wantsQuiet) return 'vila-panorama';
+  if (wantsCentral) return 'apartman-cigota';
   return tier === 'premium' ? 'vila-panorama' : 'apartman-cigota';
+}
+
+function locationRecommendationReason(answers: ConfiguratorAnswers, accommodation: Partner): string {
+  const preference = answers.locationPreference ?? 'najbolja-opcija';
+  const isQuiet = accommodation.locationTags?.includes('quiet_area') || accommodation.locationTags?.includes('nature');
+  const isCentral = accommodation.locationTags?.includes('central') || accommodation.locationTags?.includes('near_center');
+
+  if (preference === 'blizu-centra') return `Predlažemo smeštaj blizu centra jer ste to izabrali — ${accommodation.name} je na ${accommodation.distanceFromCenterKm ?? 0} km od centra.`;
+  if (preference === 'mirniji-kraj') return `Predlažemo smeštaj u mirnijem delu Zlatibora jer ste to izabrali.`;
+  if (isQuiet && (answers.occasion === 'romanticni-vikend' || answers.occasion === 'godisnjica-rodjendan')) {
+    return 'Predlažemo smeštaj u mirnijem delu Zlatibora jer ste izabrali romantični vikend i više privatnosti.';
+  }
+  if (isCentral && (answers.occasion === 'vikend-sa-ekipom' || answers.occasion === 'momacko-devojacko')) {
+    return 'Predlažemo smeštaj blizu centra jer ste izabrali vikend sa društvom i večernji program.';
+  }
+  return `Predlažemo ${accommodation.name} kao najbolju opciju za vaš plan.`;
 }
 
 const TIER_BUDGET_MULTIPLIER: Record<PlanTier, number> = {
@@ -320,7 +355,7 @@ function buildPlan(tier: PlanTier, answers: ConfiguratorAnswers): GeneratedPlan 
   const count = Math.min(PACE_COUNTS[pace][tier], candidates.length);
   const selected = candidates.slice(0, count);
 
-  const accommodation = getPartnerById(pickAccommodationId(tier, groupSize)) ?? partners.find((p) => p.categories.includes('smestaj'))!;
+  const accommodation = getPartnerById(pickAccommodationId(tier, answers)) ?? listPartners().find((p) => p.categories.includes('smestaj'))!;
   const experiencesCost = selected.reduce((sum, exp) => sum + experienceCost(exp, groupSize), 0);
   const accommodationCostValue = computeAccommodationCost(tier, answers, experiencesCost);
   const totalPrice = accommodationCostValue + experiencesCost;
@@ -338,6 +373,7 @@ function buildPlan(tier: PlanTier, answers: ConfiguratorAnswers): GeneratedPlan 
     nights,
     groupSize,
     accommodation,
+    locationReason: locationRecommendationReason(answers, accommodation),
     experiences: selected,
     days,
     included,
@@ -356,6 +392,21 @@ export function generatePlans(answers: ConfiguratorAnswers): GeneratedPlan[] {
     buildPlan('preporuka', answers),
     buildPlan('premium', answers),
   ];
+}
+
+/** Korisnikov ručni izbor smeštaja uvek ima prednost nad automatskom lokacijskom preporukom. */
+export function changeAccommodation(plan: GeneratedPlan, partnerId: string): GeneratedPlan {
+  const accommodation = getPartnerById(partnerId);
+  if (!accommodation) return plan;
+  const included = plan.included.map((item, index) =>
+    index === 0 ? `${plan.nights} noćenja u smeštaju „${accommodation.name}"` : item,
+  );
+  return {
+    ...plan,
+    accommodation,
+    locationReason: `Ručno ste izabrali „${accommodation.name}" umesto predložene opcije.`,
+    included,
+  };
 }
 
 export function swapExperience(

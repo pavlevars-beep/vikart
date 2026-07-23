@@ -1,5 +1,5 @@
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
-import { packages } from '@/data/packages';
+import { listPackages } from '@/services/packagesStore';
 import PackageCard from '@/components/cards/PackageCard';
 
 export default function Packages() {
@@ -14,7 +14,7 @@ export default function Packages() {
         </p>
       </div>
       <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        {packages.map((pkg) => (
+        {listPackages().map((pkg) => (
           <PackageCard key={pkg.id} pkg={pkg} />
         ))}
       </div>

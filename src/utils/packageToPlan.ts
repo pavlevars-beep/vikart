@@ -1,7 +1,7 @@
 import type { GeneratedPlan, Package } from '@/types';
-import { getPartnerById } from '@/data/partners';
-import { getPartnerOfferById } from '@/data/partnerOffers';
-import { getExperienceById } from '@/data/experiences';
+import { getPartnerById } from '@/services/partnersStore';
+import { getPartnerOfferById } from '@/services/partnerOffersStore';
+import { getExperienceById } from '@/services/experiencesStore';
 import { buildItinerary, planAvailability, DEFAULT_EXCLUDED } from './planGenerator';
 
 export function packageToPlan(pkg: Package): GeneratedPlan {
@@ -41,6 +41,7 @@ export function packageToPlan(pkg: Package): GeneratedPlan {
     nights: pkg.nights,
     groupSize: pkg.participantsCount,
     accommodation,
+    locationReason: `Smeštaj „${accommodation.name}" je deo ovog paketa.`,
     experiences: selectedExperiences,
     days: buildItinerary(selectedExperiences, pkg.nights, 'uravnotezeno'),
     included: [`${pkg.nights} noćenja u smeštaju „${accommodation.name}"`, ...pkg.highlights],

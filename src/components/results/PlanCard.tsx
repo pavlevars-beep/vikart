@@ -4,7 +4,9 @@ import { X, RefreshCw, Plus, Check, Minus, Users2 } from 'lucide-react';
 import type { Experience, GeneratedPlan } from '@/types';
 import { formatPrice } from '@/utils/format';
 import { availabilityLabels } from '@/utils/labels';
-import { experiences as allExperiences } from '@/data/experiences';
+import { listExperiences } from '@/services/experiencesStore';
+import { listPartners } from '@/services/partnersStore';
+import InclusionList from '@/components/partners/InclusionList';
 
 function involvedPartnerCount(plan: GeneratedPlan): number {
   const ids = new Set<string>([plan.accommodation.id, ...plan.experiences.map((exp) => exp.partnerId)]);
@@ -17,11 +19,13 @@ interface PlanCardProps {
   onRemove: (experienceId: string) => void;
   onSwap: (experienceId: string) => void;
   onAdd: (experience: Experience) => void;
+  onChangeAccommodation: (partnerId: string) => void;
 }
 
-export default function PlanCard({ plan, highlighted, onRemove, onSwap, onAdd }: PlanCardProps) {
+export default function PlanCard({ plan, highlighted, onRemove, onSwap, onAdd, onChangeAccommodation }: PlanCardProps) {
   const [addOpen, setAddOpen] = useState(false);
-  const availableToAdd = allExperiences.filter((exp) => !plan.experiences.some((p) => p.id === exp.id));
+  const availableToAdd = listExperiences().filter((exp) => !plan.experiences.some((p) => p.id === exp.id));
+  const accommodationOptions = listPartners().filter((p) => p.categories.includes('smestaj') && p.lifecycleStatus === 'published');
 
   return (
     <article
@@ -57,6 +61,21 @@ export default function PlanCard({ plan, highlighted, onRemove, onSwap, onAdd }:
         <p className="text-xs font-semibold uppercase tracking-wide text-ink-soft">Smeštaj</p>
         <p className="mt-1 font-serif text-lg text-ink">{plan.accommodation.name}</p>
         <p className="text-sm text-ink-soft">{plan.accommodation.oneLiner}</p>
+        <p className="mt-1.5 text-xs text-ink-soft">{plan.locationReason}</p>
+        {accommodationOptions.length > 1 && (
+          <label className="mt-2 block text-xs">
+            <span className="mb-1 block font-medium text-ink-soft">Promeni smeštaj</span>
+            <select
+              value={plan.accommodation.id}
+              onChange={(e) => onChangeAccommodation(e.target.value)}
+              className="min-h-[36px] w-full rounded-lg border border-ink/15 bg-warm-white px-2 text-sm text-ink"
+            >
+              {accommodationOptions.map((p) => (
+                <option key={p.id} value={p.id}>{p.name}</option>
+              ))}
+            </select>
+          </label>
+        )}
       </div>
 
       <div className="mt-5">
@@ -134,22 +153,14 @@ export default function PlanCard({ plan, highlighted, onRemove, onSwap, onAdd }:
         )}
       </div>
 
-      <div className="mt-5 grid grid-cols-2 gap-3 text-xs text-ink-soft">
+      <div className="mt-5 grid grid-cols-2 gap-3 text-xs">
         <div>
           <p className="font-semibold text-ink">Uključeno</p>
-          <ul className="mt-1 list-inside list-disc space-y-0.5">
-            {plan.included.slice(0, 3).map((item) => (
-              <li key={item}>{item}</li>
-            ))}
-          </ul>
+          <div className="mt-1"><InclusionList items={plan.included.slice(0, 3)} variant="included" /></div>
         </div>
         <div>
           <p className="font-semibold text-ink">Nije uključeno</p>
-          <ul className="mt-1 list-inside list-disc space-y-0.5">
-            {plan.excluded.slice(0, 3).map((item) => (
-              <li key={item}>{item}</li>
-            ))}
-          </ul>
+          <div className="mt-1"><InclusionList items={plan.excluded.slice(0, 3)} variant="excluded" /></div>
         </div>
       </div>
       {plan.pendingConfirmation.length > 0 && (

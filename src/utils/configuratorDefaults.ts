@@ -11,6 +11,7 @@ export const defaultAnswers: ConfiguratorAnswers = {
   wants: [],
   budget: null,
   pace: null,
+  locationPreference: 'najbolja-opcija',
   specialRequest: '',
 };
 

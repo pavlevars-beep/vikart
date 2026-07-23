@@ -27,7 +27,7 @@ export default function Footer() {
             <h3 className="text-sm font-semibold uppercase tracking-wide text-gold">Partneri</h3>
             <ul className="mt-3 space-y-2 text-sm text-warm-white/80">
               <li><Link to="/za-partnere" className="hover:text-warm-white">Postani VikArt partner</Link></li>
-              <li><Link to="/za-partnere/prijava" className="hover:text-warm-white">Prijavi ponudu</Link></li>
+              <li><Link to="/za-partnere/prijava" className="hover:text-warm-white">Prijavi interesovanje</Link></li>
             </ul>
           </nav>
 

@@ -3,22 +3,14 @@ import { sendTelegramMessage, escapeHtml, jsonResponse } from './_telegram';
 export const config = { runtime: 'edge' };
 
 interface PartnerInquiryPayload {
-  type?: string;
+  categories?: string[];
   businessName?: string;
   contactName?: string;
   phone?: string;
   email?: string;
-  location?: string;
-  website?: string;
-  instagram?: string;
-  description?: string;
-  priceRange?: string;
-  capacity?: string;
-  seasonality?: string;
-  confirmationMethod?: string;
-  responseTime?: string;
-  photosLink?: string;
+  link?: string;
   note?: string;
+  consent?: boolean;
 }
 
 export default async function handler(req: Request): Promise<Response> {
@@ -33,25 +25,22 @@ export default async function handler(req: Request): Promise<Response> {
     return jsonResponse({ error: 'Neispravan JSON u zahtevu.' }, 400);
   }
 
-  if (!body.businessName || !body.contactName || !body.phone || !body.email) {
-    return jsonResponse({ error: 'Nedostaju obavezna polja (naziv, kontakt osoba, telefon, email).' }, 400);
+  if (!body.businessName || !body.contactName || !body.phone) {
+    return jsonResponse({ error: 'Nedostaju obavezna polja (naziv, kontakt osoba, telefon).' }, 400);
   }
 
   const lines = [
-    '🤝 <b>Nova prijava partnera</b>',
-    body.type ? `Tip: ${escapeHtml(body.type)}` : null,
+    '🤝 <b>Novo interesovanje partnera</b>',
+    body.categories?.length ? `Kategorija: ${escapeHtml(body.categories.join(', '))}` : null,
     `Naziv: ${escapeHtml(body.businessName)}`,
     `Kontakt osoba: ${escapeHtml(body.contactName)}`,
     `Telefon: ${escapeHtml(body.phone)}`,
-    `Email: ${escapeHtml(body.email)}`,
-    body.location ? `Lokacija: ${escapeHtml(body.location)}` : null,
-    body.website ? `Web: ${escapeHtml(body.website)}` : null,
-    body.instagram ? `Instagram: ${escapeHtml(body.instagram)}` : null,
-    body.priceRange ? `Cene: ${escapeHtml(body.priceRange)}` : null,
-    body.capacity ? `Kapacitet: ${escapeHtml(body.capacity)}` : null,
-    body.description ? `Opis: ${escapeHtml(body.description)}` : null,
+    body.email ? `Email: ${escapeHtml(body.email)}` : null,
+    body.link ? `Link: ${escapeHtml(body.link)}` : null,
     body.note ? `Napomena: ${escapeHtml(body.note)}` : null,
-  ].filter((line): line is string => Boolean(line));
+    '',
+    'Kratka prijava — detalji se prikupljaju tokom razgovora, pregledaj u admin panelu (/admin/upiti-partnera).',
+  ].filter((line): line is string => line !== null);
 
   try {
     await sendTelegramMessage(lines.join('\n'));
