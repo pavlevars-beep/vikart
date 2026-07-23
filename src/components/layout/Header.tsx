@@ -31,7 +31,8 @@ export default function Header() {
     <header className="sticky top-0 z-40 border-b border-ink/5 bg-warm-white/95 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <Link to="/" className="flex items-center" aria-label="VikArt — početna">
-          <Logo />
+          <Logo variant="mark" className="sm:hidden" />
+          <Logo variant="full" className="hidden sm:block" />
         </Link>
 
         <nav className="hidden items-center gap-8 lg:flex" aria-label="Glavna navigacija">
